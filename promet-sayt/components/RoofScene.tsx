@@ -62,9 +62,15 @@ export default function RoofScene({
     };
   }, [intro]);
 
-  useEffect(() => api.current?.setColor(color), [color, ready]);
-  useEffect(() => api.current?.setShape(shape), [shape, ready]);
-  useEffect(() => api.current?.setMaterial(material), [material, ready]);
+  useEffect(() => {
+    api.current?.setColor(color);
+  }, [color, ready]);
+  useEffect(() => {
+    api.current?.setShape(shape);
+  }, [shape, ready]);
+  useEffect(() => {
+    api.current?.setMaterial(material);
+  }, [material, ready]);
 
   return (
     <div ref={host} className={`roof-scene ${ready ? "is-ready" : ""} ${className || ""}`} role="img" aria-label={label}>
@@ -467,7 +473,9 @@ async function buildScene(
   tick();
 
   return {
-    setColor: (hex) => targetColor.set(hex),
+    setColor: (hex) => {
+      targetColor.set(hex);
+    },
     setShape: (s) => {
       house.remove(roof);
       disposeGroup(roof);
