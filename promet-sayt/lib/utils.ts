@@ -34,6 +34,12 @@ export function som(n: number) {
   return new Intl.NumberFormat("ru-RU").format(Math.round(n)).replace(/ /g, " ") + " so'm";
 }
 
+/** 54 100 000 → "54,1 mln" */
+export function mln(n: number) {
+  if (n < 1_000_000) return new Intl.NumberFormat("ru-RU").format(Math.round(n)).replace(/\u00a0/g, " ");
+  return (Math.round(n / 100_000) / 10).toFixed(1).replace(".", ",").replace(",0", "") + " mln";
+}
+
 export function telHref(phone: string) {
   return "tel:" + phone.replace(/[^\d+]/g, "");
 }

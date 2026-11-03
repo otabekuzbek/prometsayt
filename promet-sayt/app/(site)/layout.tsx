@@ -19,7 +19,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   };
   return (
     <>
-      <Header phone={s.phone} telHref={telHref(s.phone)} workingHours={s.workingHours} address={s.address} telegram={telegramHref(s.telegram)} />
+      <Header phone={s.phone} telHref={telHref(s.phone)} telegram={telegramHref(s.telegram)} />
       <main>{children}</main>
       <Footer s={s} />
       <Analytics s={s} />

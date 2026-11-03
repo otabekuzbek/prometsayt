@@ -1,10 +1,98 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import type { RoofObject } from "@/lib/types";
 import { OBJECT_TYPES, placeName, videoEmbed } from "@/lib/utils";
 import RoofArt from "./RoofArt";
-import { Close, Play } from "./Icons";
+import { Arrow, Close, Play } from "./Icons";
+
+export function ObjectCard({ o, i, onOpen }: { o: RoofObject; i: number; onOpen: () => void }) {
+  return (
+    <button type="button" className="obj-card" onClick={onOpen} aria-label={`${placeName(o.region, o.district)}: ${o.title}. Ko'rish`}>
+      <div className="media">
+        {o.images[0] ? (
+          <Image src={o.images[0]} alt="" fill sizes="(max-width: 640px) 85vw, 400px" style={{ objectFit: "cover" }} draggable={false} />
+        ) : (
+          <RoofArt variant={i} label={o.title} />
+        )}
+      </div>
+      <div className="cap">
+        <span className="script">{placeName(o.region, o.district)}</span>
+        <h3>{o.title}</h3>
+      </div>
+      <div className="meta">
+        <span className="tag">{o.product}</span>
+        {o.area > 0 && <span className="tag">{o.area} m²</span>}
+        {o.videoUrl && <span className="tag" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Play size={12} /> Video</span>}
+        <span className="open" aria-hidden="true"><Arrow /></span>
+      </div>
+    </button>
+  );
+}
+
+export function ObjectsRail({ objects }: { objects: RoofObject[] }) {
+  const [open, setOpen] = useState<RoofObject | null>(null);
+  const rail = useRef<HTMLDivElement>(null);
+  const drag = useRef({ down: false, x: 0, left: 0, moved: false });
+
+  const scrollBy = (d: number) => {
+    const el = rail.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>(".obj-card");
+    el.scrollBy({ left: d * ((card?.offsetWidth || 360) + 20), behavior: "smooth" });
+  };
+
+  return (
+    <>
+      <div className="rail-wrap">
+        <div
+          ref={rail}
+          className="rail"
+          onPointerDown={(e) => {
+            if (e.pointerType !== "mouse" || !rail.current) return;
+            drag.current = { down: true, x: e.clientX, left: rail.current.scrollLeft, moved: false };
+          }}
+          onPointerMove={(e) => {
+            const d = drag.current;
+            if (!d.down || !rail.current) return;
+            const dx = e.clientX - d.x;
+            if (Math.abs(dx) > 5) {
+              d.moved = true;
+              rail.current.classList.add("dragging");
+            }
+            rail.current.scrollLeft = d.left - dx;
+          }}
+          onPointerUp={() => {
+            drag.current.down = false;
+            rail.current?.classList.remove("dragging");
+          }}
+          onPointerLeave={() => {
+            drag.current.down = false;
+            rail.current?.classList.remove("dragging");
+          }}
+          onClickCapture={(e) => {
+            if (drag.current.moved) {
+              e.stopPropagation();
+              e.preventDefault();
+              drag.current.moved = false;
+            }
+          }}
+        >
+          {objects.map((o, i) => (
+            <ObjectCard key={o.id} o={o} i={i} onOpen={() => setOpen(o)} />
+          ))}
+        </div>
+      </div>
+      {objects.length > 2 && (
+        <div className="rail-ctrl" style={{ marginTop: 8 }}>
+          <button type="button" onClick={() => scrollBy(-1)} aria-label="Oldingi obyektlar"><Arrow left /></button>
+          <button type="button" onClick={() => scrollBy(1)} aria-label="Keyingi obyektlar"><Arrow /></button>
+        </div>
+      )}
+      {open && <Lightbox obj={open} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
 
 export default function ObjectsGallery({ objects, filters = true, limit }: { objects: RoofObject[]; filters?: boolean; limit?: number }) {
   const [region, setRegion] = useState("Barchasi");
@@ -16,6 +104,7 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
     objects.forEach((o) => m.set(o.region, (m.get(o.region) || 0) + 1));
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [objects]);
+  const types = useMemo(() => [...new Set(objects.map((o) => o.type))], [objects]);
 
   const list = objects
     .filter((o) => (region === "Barchasi" || o.region === region) && (type === "Barchasi" || o.type === type))
@@ -23,25 +112,29 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
 
   return (
     <>
-      {filters && (
+      {filters && (regions.length > 1 || types.length > 1) && (
         <div style={{ display: "grid", gap: 12 }}>
-          <div className="chips" role="group" aria-label="Viloyat bo'yicha">
-            <button className="chip" aria-pressed={region === "Barchasi"} onClick={() => setRegion("Barchasi")}>
-              Barcha viloyatlar <small>{objects.length}</small>
-            </button>
-            {regions.map(([r, n]) => (
-              <button key={r} className="chip" aria-pressed={region === r} onClick={() => setRegion(r)}>
-                {r} <small>{n}</small>
+          {regions.length > 1 && (
+            <div className="chips" role="group" aria-label="Viloyat bo'yicha">
+              <button className="chip" aria-pressed={region === "Barchasi"} onClick={() => setRegion("Barchasi")}>
+                Barcha viloyatlar <small>{objects.length}</small>
               </button>
-            ))}
-          </div>
-          <div className="chips" role="group" aria-label="Obyekt turi">
-            {["Barchasi", ...Object.keys(OBJECT_TYPES)].map((t) => (
-              <button key={t} className="chip" aria-pressed={type === t} onClick={() => setType(t)}>
-                {t === "Barchasi" ? "Barcha turlar" : OBJECT_TYPES[t]}
-              </button>
-            ))}
-          </div>
+              {regions.map(([r, n]) => (
+                <button key={r} className="chip" aria-pressed={region === r} onClick={() => setRegion(r)}>
+                  {r} <small>{n}</small>
+                </button>
+              ))}
+            </div>
+          )}
+          {types.length > 1 && (
+            <div className="chips" role="group" aria-label="Obyekt turi">
+              {["Barchasi", ...types].map((t) => (
+                <button key={t} className="chip" aria-pressed={type === t} onClick={() => setType(t)}>
+                  {t === "Barchasi" ? "Barcha turlar" : OBJECT_TYPES[t]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {list.length === 0 ? (
@@ -49,32 +142,7 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
       ) : (
         <div className="obj-grid">
           {list.map((o, i) => (
-            <button
-              key={o.id}
-              type="button"
-              className={`obj-card${i % 5 === 0 && list.length > 2 ? " wide" : ""}`}
-              onClick={() => setOpen(o)}
-              style={{ border: 0, padding: 0, textAlign: "left", cursor: "pointer", font: "inherit" }}
-              aria-label={`${o.region}, ${o.district}: ${o.title}`}
-            >
-              <div className="media">
-                {o.images[0] ? (
-                  <Image src={o.images[0]} alt={o.title} fill sizes="(max-width: 860px) 100vw, 66vw" style={{ objectFit: "cover" }} />
-                ) : (
-                  <RoofArt variant={i} label={o.title} />
-                )}
-              </div>
-              <div className="cap">
-                <span className="script">{placeName(o.region, o.district)}</span>
-                <h3>{o.title}</h3>
-              </div>
-              <div className="meta">
-                <span className="tag">{o.product}</span>
-                {o.area > 0 && <span className="tag">{o.area} m²</span>}
-                {o.images.length > 1 && <span className="tag">{o.images.length} ta rasm</span>}
-                {o.videoUrl && <span className="tag" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Play size={12} /> Video</span>}
-              </div>
-            </button>
+            <ObjectCard key={o.id} o={o} i={i} onOpen={() => setOpen(o)} />
           ))}
         </div>
       )}
@@ -112,10 +180,10 @@ function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
     <div className="lightbox" role="dialog" aria-modal="true" aria-label={obj.title}>
       <div className="lightbox-top">
         <div>
-          <div className="script" style={{ color: "var(--insta-green)", fontSize: 24 }}>{placeName(obj.region, obj.district)}</div>
+          <div className="script" style={{ color: "var(--green-hi)", fontSize: 24 }}>{placeName(obj.region, obj.district)}</div>
           <b style={{ fontSize: 18 }}>{obj.title}</b>
           <div style={{ fontSize: 14, opacity: 0.75 }}>
-            {obj.product}{obj.area ? ` · ${obj.area} m²` : ""} · {obj.year} · {OBJECT_TYPES[obj.type]}
+            {[obj.product, obj.area ? `${obj.area} m²` : "", String(obj.year), OBJECT_TYPES[obj.type]].filter(Boolean).join(", ")}
           </div>
         </div>
         <button className="icon-btn" onClick={onClose} aria-label="Yopish"><Close /></button>

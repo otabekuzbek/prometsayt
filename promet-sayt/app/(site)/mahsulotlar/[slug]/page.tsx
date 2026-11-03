@@ -71,7 +71,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       {related.length > 0 && (
         <section className="section white">
           <div className="wrap">
-            <div className="sec-head"><div><span className="eyebrow">Obyektlarda</span><h2 className="h-lg">{p.name} bilan yopilgan tomlar</h2></div></div>
+            <h2 className="h-lg" style={{ marginBottom: 40 }}>{p.name} bilan yopilgan tomlar</h2>
             <ObjectsGallery objects={related} filters={false} limit={5} />
           </div>
         </section>
@@ -79,8 +79,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <section className="section">
         <div className="wrap faq-layout">
           <div>
-            <span className="eyebrow">Maslahat</span>
-            <h2 className="h-lg" style={{ marginTop: 14 }}>Qaysi qalinlik va rang sizga mos?</h2>
+                        <h2 className="h-lg" style={{ marginTop: 14 }}>Qaysi qalinlik va rang sizga mos?</h2>
             <p className="lead" style={{ marginTop: 14 }}>Usta joyga kelib tomni o&apos;lchaydi va namunalarni ko&apos;rsatadi. O&apos;lchov bepul.</p>
           </div>
           <div className="contact-card"><LeadForm source={`mahsulot-${p.slug}`} compact /></div>

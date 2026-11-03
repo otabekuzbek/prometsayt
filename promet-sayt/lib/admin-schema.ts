@@ -43,7 +43,7 @@ export const SECTIONS: SectionSchema[] = [
       { key: "type", label: "Obyekt turi", type: "select", options: [
         { value: "turar-joy", label: "Turar-joy" }, { value: "tijorat", label: "Tijorat" }, { value: "sanoat", label: "Sanoat" },
       ] },
-      { key: "product", label: "Material", type: "select", options: ["Metallocherepitsa", "Profnastil", "Tunikafon"].map((v) => ({ value: v, label: v })) },
+      { key: "product", label: "Material", type: "select", options: ["Metallocherepitsa", "Profnastil", "Tunkafon"].map((v) => ({ value: v, label: v })) },
       { key: "area", label: "Maydon, m²", type: "number" },
       { key: "year", label: "Yil", type: "number" },
       { key: "images", label: "Rasmlar", type: "images", help: "Birinchi rasm — muqova" },

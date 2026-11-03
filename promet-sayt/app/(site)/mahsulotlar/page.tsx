@@ -7,7 +7,7 @@ import Media from "@/components/Media";
 
 export const revalidate = 3600;
 export const metadata: Metadata = {
-  title: "Mahsulotlar — metallocherepitsa, profnastil, tunikafon",
+  title: "Mahsulotlar — metallocherepitsa, profnastil, tunkafon",
   description: "Tom va fasad uchun po'lat listlar va butlovchi qismlar: qalinlik, rang, narx va kafolat.",
 };
 

@@ -14,42 +14,34 @@ const NAV = [
   { href: "/aloqa", label: "Aloqa" },
 ];
 
-export default function Header({
-  phone,
-  telHref,
-  workingHours,
-  address,
-  telegram,
-}: {
-  phone: string;
-  telHref: string;
-  workingHours: string;
-  address: string;
-  telegram: string;
-}) {
+export default function Header({ phone, telHref, telegram }: { phone: string; telHref: string; telegram: string }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
+
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+  useEffect(() => {
+    const onScroll = () => setSolid(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [path]);
 
   return (
     <>
-      <div className="topbar">
-        <div className="wrap">
-          <span>{workingHours} · {address}</span>
-          <div className="topbar-right">
-            {telegram && <a href={telegram} target="_blank" rel="noopener">Telegram</a>}
-            <a href="/kafolat#tekshirish">Kafolatni tekshirish</a>
-          </div>
-        </div>
-      </div>
-      <header className="header">
+      <header className={`header${solid && !open ? " is-solid" : ""}${open ? " menu-open" : ""}`}>
         <div className="wrap">
           <Link href="/" className="logo" aria-label="Promet Tom Markazi — bosh sahifa">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Promet Tom Markazi" width={204} height={44} />
+            <img className="on-dark-logo" src="/logo-white.png" alt="" width={196} height={42} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="on-light" src="/logo.png" alt="Promet Tom Markazi" width={196} height={42} />
           </Link>
           <nav className="nav" aria-label="Asosiy menyu">
             {NAV.map((n) => (
@@ -61,18 +53,27 @@ export default function Header({
           <div className="header-cta">
             <a className="header-phone" href={telHref}>{phone}</a>
             <Link className="btn btn-green btn-sm" href="/aloqa#forma">Bepul o&apos;lchov</Link>
-            <button className="burger" aria-label={open ? "Menyuni yopish" : "Menyuni ochish"} aria-expanded={open} onClick={() => setOpen(!open)}>
+            <button className="burger" aria-label={open ? "Menyuni yopish" : "Menyuni ochish"} aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
               {open ? <Close /> : <Menu />}
             </button>
           </div>
         </div>
       </header>
-      <nav className="mobile-nav" data-open={open} aria-label="Mobil menyu">
-        {NAV.map((n) => (
-          <Link key={n.href} href={n.href}>{n.label}</Link>
-        ))}
-        <a href={telHref} style={{ color: "var(--green-action)" }}>{phone}</a>
-      </nav>
+      <div id="site-menu" className="menu-overlay" data-open={open} aria-hidden={!open}>
+        <nav aria-label="Menyu">
+          <Link href="/" tabIndex={open ? 0 : -1} style={{ transitionDelay: open ? "0.1s" : "0s" }}>Bosh sahifa</Link>
+          {NAV.map((n, i) => (
+            <Link key={n.href} href={n.href} tabIndex={open ? 0 : -1} style={{ transitionDelay: open ? `${0.14 + i * 0.04}s` : "0s" }}>
+              {n.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="menu-foot">
+          <a href={telHref} tabIndex={open ? 0 : -1}>{phone}</a>
+          {telegram && <a href={telegram} target="_blank" rel="noopener" tabIndex={open ? 0 : -1}>Telegram</a>}
+          <span>O&apos;lchov va smeta bepul</span>
+        </div>
+      </div>
       <div className="mobile-bar">
         <a href={telHref}><Phone /> Qo&apos;ng&apos;iroq</a>
         <Link href="/aloqa#forma" className="main"><Ruler /> Bepul o&apos;lchov</Link>

@@ -8,7 +8,8 @@ export const Pin = ({ size }: P) => (<svg {...s(size)}><path d="M20 10c0 6-8 12-
 export const Clock = ({ size }: P) => (<svg {...s(size)}><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>);
 export const Mail = ({ size }: P) => (<svg {...s(size)}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>);
 export const Shield = ({ size }: P) => (<svg {...s(size)}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>);
-export const Arrow = ({ size }: P) => (<svg {...s(size)}><path d="M5 12h14M13 6l6 6-6 6"/></svg>);
+export const Arrow = ({ size, left }: P & { left?: boolean }) => (<svg {...s(size)} style={left ? { transform: "scaleX(-1)" } : undefined}><path d="M5 12h14M13 6l6 6-6 6"/></svg>);
+export const Drag = ({ size }: P) => (<svg {...s(size)}><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M4 12h16"/></svg>);
 export const Menu = ({ size }: P) => (<svg {...s(size)}><path d="M3 6h18M3 12h18M3 18h18"/></svg>);
 export const Close = ({ size }: P) => (<svg {...s(size)}><path d="M18 6 6 18M6 6l12 12"/></svg>);
 export const Instagram = ({ size }: P) => (<svg {...s(size)}><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>);

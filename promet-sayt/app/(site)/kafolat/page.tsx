@@ -17,27 +17,19 @@ export default async function Page() {
   return (
     <>
       <PageHero crumb={[{ label: "Kafolat" }]} title="Kafolat va sertifikatlar" text={`${s.warrantyYears} yillik kafolat — raqamli hujjat va ochiq reestr bilan.`} />
-      <section className="section dark">
-        <div className="wrap warranty">
-          <div style={{ display: "grid", gap: 18 }}>
-            <span className="eyebrow">Onlayn tekshiruv</span>
-            <h2 className="h-lg">Kafolatingiz reestrda</h2>
-            <p className="lead">Har bir kafolat hujjati raqam bilan reestrga kiritiladi. Uy sotilganda ham yangi egasi kafolatni shu yerda tekshira oladi.</p>
-          </div>
-          <WarrantyCheck />
-        </div>
+      <section className="section dark blueprint">
+        <div className="wrap"><WarrantyCheck years={s.warrantyYears} /></div>
       </section>
       <section className="section">
         <div className="wrap">
           <div className="values" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
             {[
-              ["Material kafolati", "Zavod sertifikatiga ega metall: qoplama ko'chmaydi, zanglamaydi."],
-              ["Montaj kafolati", "Chakka o'tsa yoki list ko'chsa — bepul tuzatamiz."],
-              ["Texnik ko'rik", "Montajdan keyin jamoamiz tomni qayta ko'zdan kechiradi."],
-              ["Yozma hujjat", "Muhrli, raqamli hujjat — og'zaki va'da emas."],
+              [`${s.warrantyYears} yil muddat`, "Kafolat yopilgan tomga beriladi va hujjatda muddati bilan yoziladi."],
+              ["Yozma hujjat", "Har bir mijozga raqamli, muhrli kafolat hujjati topshiriladi."],
+              ["Ochiq reestr", "Hujjat raqami bilan kafolatni saytda istalgan vaqt tekshirish mumkin."],
             ].map(([t, d]) => (
               <div key={t} className="value">
-                <span style={{ color: "var(--green-action)" }}><Shield size={28} /></span>
+                <span style={{ color: "var(--green-btn)" }}><Shield size={28} /></span>
                 <h3>{t}</h3>
                 <p className="muted">{d}</p>
               </div>
@@ -47,9 +39,9 @@ export default async function Page() {
       </section>
       <section className="section white" id="sertifikatlar">
         <div className="wrap">
-          <div className="sec-head"><div><span className="eyebrow">Hujjatlar</span><h2 className="h-lg">Sertifikatlar</h2></div></div>
+          <h2 className="h-lg" style={{ marginBottom: 40 }}>Sertifikatlar</h2>
           {c.certificates.length ? (
-            <div className="certs" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+            <div className="certs">
               {c.certificates.map((ct) => (
                 <a key={ct.id} href={ct.image} target="_blank" rel="noopener" className="cert">
                   <div className="img"><Media src={ct.image} alt={ct.title} sizes="240px" /></div>

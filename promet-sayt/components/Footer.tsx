@@ -10,13 +10,12 @@ export default function Footer({ s }: { s: Settings }) {
       <div className="wrap">
         <div className="footer-grid">
           <div>
-            <span className="footer-logo">
+            <div className="footer-logo">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Promet Tom Markazi" width={185} height={40} />
-            </span>
-            <p>
-              {s.yearsExperience} yillik tajribaga ega tom yopish korxonasi. Material, montaj va {s.warrantyYears} yillik kafolat — bitta
-              jamoadan.
+              <img src="/logo-white.png" alt="Promet Tom Markazi" width={186} height={40} />
+            </div>
+            <p style={{ maxWidth: "34ch" }}>
+              Tom yopish bo&apos;yicha {s.yearsExperience} yillik tajriba. Material, montaj va {s.warrantyYears} yillik kafolat — bir jamoadan.
             </p>
             <div className="socials">
               {s.instagram && <a href={s.instagram} target="_blank" rel="noopener" aria-label="Instagram"><Instagram /></a>}
@@ -39,23 +38,24 @@ export default function Footer({ s }: { s: Settings }) {
             <ul>
               <li><Link href="/mahsulotlar/metallocherepitsa">Metallocherepitsa</Link></li>
               <li><Link href="/mahsulotlar/profnastil">Profnastil</Link></li>
-              <li><Link href="/mahsulotlar/tunikafon">Tunikafon</Link></li>
+              <li><Link href="/mahsulotlar/tunkafon">Tunkafon</Link></li>
               <li><Link href="/mahsulotlar/butlovchi-qismlar">Butlovchi qismlar</Link></li>
             </ul>
           </div>
           <div>
             <h4>Aloqa</h4>
             <ul>
-              <li><a href={telHref(s.phone)} style={{ color: "#fff", fontWeight: 800, fontSize: 18 }}>{s.phone}</a></li>
+              <li><a href={telHref(s.phone)} style={{ color: "#fff", fontWeight: 800, fontSize: 20 }}>{s.phone}</a></li>
               {s.phone2 && <li><a href={telHref(s.phone2)}>{s.phone2}</a></li>}
               {s.email && <li><a href={`mailto:${s.email}`}>{s.email}</a></li>}
-              <li>{s.address}</li>
+              {s.address && <li>{s.address}</li>}
               <li>{s.workingHours}</li>
             </ul>
           </div>
         </div>
+        <div className="footer-mark" aria-hidden="true">PROMET</div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} {s.companyName}. Barcha huquqlar himoyalangan.</span>
+          <span>© {new Date().getFullYear()} {s.companyName}</span>
           <Link href="/maxfiylik">Maxfiylik siyosati</Link>
         </div>
       </div>

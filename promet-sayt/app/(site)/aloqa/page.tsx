@@ -13,7 +13,7 @@ export default async function Page() {
   const tg = telegramHref(s.telegram);
   return (
     <>
-      <PageHero crumb={[{ label: "Aloqa" }]} title="Bepul o'lchovga yoziling" text="Formani to'ldiring — mutaxassisimiz ish vaqtida 15 daqiqa ichida qo'ng'iroq qiladi." />
+      <PageHero crumb={[{ label: "Aloqa" }]} title="Bepul o'lchovga yoziling" text="Formani to'ldiring — mutaxassisimiz ish vaqtida qo'ng'iroq qilib, o'lchov vaqtini kelishadi." />
       <section className="section">
         <div className="wrap faq-layout">
           <div className="contact-list">
