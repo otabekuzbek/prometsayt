@@ -13,12 +13,7 @@ export default async function Page() {
   const c = await content();
   const s = c.settings;
   const img = c.objects.find((o) => o.images[0])?.images[0];
-  const stats = [
-    { v: String(s.yearsExperience), l: "yillik tajriba" },
-    { v: String(s.warrantyYears), l: "yil kafolat" },
-    ...(s.objectsDone > 0 ? [{ v: `${s.objectsDone}+`, l: "yopilgan tom" }] : []),
-    ...(s.followers ? [{ v: s.followers, l: "Instagram obunachi" }] : []),
-  ];
+  const stats = c.home.stats.map((x) => ({ v: x.value, l: x.label }));
   return (
     <>
       <PageHero crumb={[{ label: "Biz haqimizda" }]} script="Promet jamoasi" title="Tomni yopamiz va unga javob beramiz" />
@@ -38,7 +33,7 @@ export default async function Page() {
           <div className="gallery-main">{img ? <Media src={img} alt="Promet obyekti" /> : <RoofArt variant={0} />}</div>
         </div>
       </section>
-      <section className="section-tight dark">
+      <section className="section dark">
         <div className="wrap">
           <div className="big-stats">
             {stats.map((x) => (

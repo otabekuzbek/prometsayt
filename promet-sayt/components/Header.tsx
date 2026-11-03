@@ -22,6 +22,9 @@ export default function Header({ phone, telHref, telegram }: { phone: string; te
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+    const lenis = (window as unknown as { __lenis?: { stop: () => void; start: () => void } }).__lenis;
+    if (open) lenis?.stop();
+    else lenis?.start();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);

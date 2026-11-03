@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PageHero({ title, text, crumb, script }: { title: string; text?: string; crumb: { href?: string; label: string }[]; script?: string }) {
   return (
-    <section className="page-hero blueprint">
+    <section className="page-hero">
       <div className="wrap">
         <nav className="crumbs" aria-label="Yo'l">
           <Link href="/">Bosh sahifa</Link>

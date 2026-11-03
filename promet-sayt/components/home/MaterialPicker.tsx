@@ -7,42 +7,37 @@ import { som } from "@/lib/utils";
 import Profile, { type ProfileKind } from "../Profile";
 import { Arrow } from "../Icons";
 
+const KINDS = ["metallocherepitsa", "profnastil", "tunkafon", "butlovchi-qismlar"];
+
 export default function MaterialPicker({ products }: { products: Product[] }) {
   const [i, setI] = useState(0);
   const p = products[i];
   if (!p) return null;
-  const kind = (["metallocherepitsa", "profnastil", "tunkafon", "butlovchi-qismlar"].includes(p.slug) ? p.slug : "profnastil") as ProfileKind;
+  const kind = (KINDS.includes(p.slug) ? p.slug : "profnastil") as ProfileKind;
   const specs = p.specs.map((sp) => sp.split(":")).filter((x) => x.length > 1).slice(0, 3);
 
   return (
-    <div className="materials">
-      <div className="mat-list" role="tablist" aria-label="Materiallar">
+    <div>
+      <div className="mat-tabs" role="tablist" aria-label="Materiallar">
         {products.map((x, k) => (
-          <button
-            key={x.id}
-            role="tab"
-            id={`mat-tab-${k}`}
-            aria-controls="mat-panel"
-            aria-selected={k === i}
-            className="mat-item"
-            onClick={() => setI(k)}
-          >
-            <b>{x.name}</b>
-            <span>{x.category}</span>
-            <i aria-hidden="true"><Arrow size={18} /></i>
+          <button key={x.id} role="tab" id={`mat-tab-${k}`} aria-controls="mat-panel" aria-selected={k === i} className="mat-tab" onClick={() => setI(k)}>
+            {x.name}
           </button>
         ))}
       </div>
-      <div className="mat-panel" role="tabpanel" id="mat-panel" aria-labelledby={`mat-tab-${i}`}>
-        <div className="mat-visual blueprint">
+      <div className="mat-body" role="tabpanel" id="mat-panel" aria-labelledby={`mat-tab-${i}`}>
+        <div className="mat-visual">
           {p.images[0] ? (
-            <Image key={p.images[0]} src={p.images[0]} alt={p.name} fill sizes="(max-width: 960px) 100vw, 60vw" style={{ objectFit: "cover" }} />
+            <Image key={p.images[0]} src={p.images[0]} alt={p.name} fill sizes="(max-width: 960px) 100vw, 58vw" style={{ objectFit: "cover" }} />
           ) : (
             <Profile kind={kind} label={`${p.name}, ${p.thicknesses}`} />
           )}
         </div>
-        <div className="mat-body" key={p.id} style={{ animation: "fadeUp .5s var(--ease)" }}>
-          <p style={{ fontSize: 18, color: "var(--ink-body)" }}>{p.short}</p>
+        <div className="mat-info" key={p.id}>
+          <div style={{ display: "grid", gap: 10 }}>
+            <span className="cat">{p.category}</span>
+            <p style={{ fontSize: 19, color: "var(--ink)", lineHeight: 1.55 }}>{p.short}</p>
+          </div>
           <table className="spec-table">
             <tbody>
               <tr><td>Qalinlik</td><td>{p.thicknesses}</td></tr>
@@ -53,12 +48,12 @@ export default function MaterialPicker({ products }: { products: Product[] }) {
               <tr><td>Kafolat</td><td>{p.warrantyYears} yil</td></tr>
             </tbody>
           </table>
-          <div className="row">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, flexWrap: "wrap" }}>
             <span className="mat-price">
               {p.priceFrom ? `${som(p.priceFrom)} dan` : "Narxi o'lchovdan keyin"}
-              <small>{p.priceFrom ? `1 ${p.unit} uchun, material` : "Tom maydoni va murakkabligiga qarab"}</small>
+              <small>{p.priceFrom ? `1 ${p.unit} uchun, faqat material` : "Tom maydoni va murakkabligiga qarab"}</small>
             </span>
-            <Link href={`/mahsulotlar/${p.slug}`} className="btn btn-navy btn-sm">Batafsil <Arrow size={18} /></Link>
+            <Link href={`/mahsulotlar/${p.slug}`} className="link-arrow">Batafsil <Arrow size={18} /></Link>
           </div>
         </div>
       </div>

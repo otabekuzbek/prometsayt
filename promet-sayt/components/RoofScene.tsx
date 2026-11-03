@@ -23,6 +23,9 @@ export default function RoofScene({
   intro = false,
   className,
   label = "Uyning 3D ko'rinishi. Aylantirish uchun suring.",
+  modelUrl = "",
+  roofNames = "",
+  onRecolorable,
 }: {
   color: string;
   shape?: RoofShape;
@@ -30,19 +33,26 @@ export default function RoofScene({
   intro?: boolean;
   className?: string;
   label?: string;
+  /** Admin yuklagan .glb model. Bo'sh bo'lsa — standart uy chiziladi */
+  modelUrl?: string;
+  /** Modeldagi tom qismlarining nomlari (vergul bilan) */
+  roofNames?: string;
+  onRecolorable?: (ok: boolean) => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<Api | null>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const first = useRef({ color, shape, material });
+  const first = useRef({ color, shape, material, modelUrl, roofNames });
+  const cb = useRef(onRecolorable);
+  cb.current = onRecolorable;
 
   useEffect(() => {
     let cancelled = false;
     const el = host.current;
     if (!el) return;
     const start = () =>
-      buildScene(el, first.current, intro)
+      buildScene(el, { ...first.current, modelUrl, roofNames }, intro, (ok) => cb.current?.(ok))
         .then((a) => {
           if (cancelled) return a.dispose();
           api.current = a;
@@ -60,7 +70,7 @@ export default function RoofScene({
       api.current?.dispose();
       api.current = null;
     };
-  }, [intro]);
+  }, [intro, modelUrl, roofNames]);
 
   useEffect(() => {
     api.current?.setColor(color);
@@ -75,33 +85,41 @@ export default function RoofScene({
   return (
     <div ref={host} className={`roof-scene ${ready ? "is-ready" : ""} ${className || ""}`} role="img" aria-label={label}>
       {!ready && (
-        <svg className="roof-scene-poster" viewBox="0 0 400 260" aria-hidden="true">
-          <path d="M60 150 L130 96 L270 96 L340 150 Z" fill={color} opacity=".9" />
-          <path d="M165 96 L200 62 L235 96 Z" fill={color} />
-          <rect x="88" y="150" width="224" height="78" fill="#e9e3d8" />
+        <svg className={`roof-scene-poster${failed ? " static" : ""}`} viewBox="0 0 400 260" aria-hidden="true" fill="none" strokeLinejoin="round">
+          <path d="M40 150 L105 108 L295 108 L360 150 Z" fill={color} />
+          <path d="M140 108 L162 84 L238 84 L260 108 Z" fill={color} opacity=".85" />
+          <path d="M162 84 L200 52 L238 84 Z" fill={color} />
+          <rect x="70" y="150" width="260" height="78" fill="#f1ece3" stroke="#d9d2c4" />
+          {[92, 132, 248, 288].map((x) => <rect key={x} x={x} y="166" width="22" height="34" fill="#24364c" />)}
+          <path d="M186 228 V182 a14 14 0 0 1 28 0 V228" fill="#5a3a26" />
+          <path d="M20 232 H380" stroke="#c9cfc8" />
         </svg>
       )}
-      {failed && <span className="roof-scene-fail">3D ko&apos;rinish bu qurilmada ochilmadi</span>}
+
     </div>
   );
 }
 
 async function buildScene(
   el: HTMLDivElement,
-  init: { color: string; shape: RoofShape; material: RoofMaterial },
+  init: { color: string; shape: RoofShape; material: RoofMaterial; modelUrl: string; roofNames: string },
   intro: boolean,
+  onRecolorable: (ok: boolean) => void,
 ): Promise<Api> {
   const THREE = await import("three");
   const { OrbitControls } = await import("three/examples/jsm/controls/OrbitControls.js");
   const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Kuchsiz qurilmalarda soyalar va o'lcham kamaytiriladi
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const weak = (nav.hardwareConcurrency || 8) <= 4 || (nav.deviceMemory || 8) <= 4;
+  const renderer = new THREE.WebGLRenderer({ antialias: !weak, alpha: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, weak ? 1.25 : 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = true;
+  renderer.toneMappingExposure = 1.0;
+  renderer.shadowMap.enabled = !weak;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   el.appendChild(renderer.domElement);
 
@@ -130,7 +148,7 @@ async function buildScene(
   const sun = new THREE.DirectionalLight(0xfff3e0, 2.4);
   sun.position.set(12, 18, 8);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(1024, 1024);
   sun.shadow.camera.left = -14;
   sun.shadow.camera.right = 14;
   sun.shadow.camera.top = 14;
@@ -141,12 +159,117 @@ async function buildScene(
 
   // Zamin
   const ground = new THREE.Mesh(
-    new THREE.CircleGeometry(16, 64),
-    new THREE.ShadowMaterial({ opacity: 0.28 }),
+    new THREE.CircleGeometry(40, 64),
+    new THREE.ShadowMaterial({ opacity: 0.18 }),
   );
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);
+
+  // ---------- Admin yuklagan GLB model ----------
+  if (init.modelUrl) {
+    const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
+    const { DRACOLoader } = await import("three/examples/jsm/loaders/DRACOLoader.js");
+    const { MeshoptDecoder } = await import("three/examples/jsm/libs/meshopt_decoder.module.js");
+    const loader = new GLTFLoader();
+    const draco = new DRACOLoader();
+    draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+    loader.setDRACOLoader(draco);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    let gltf;
+    try {
+      gltf = await loader.loadAsync(init.modelUrl);
+    } catch (e) {
+      renderer.dispose();
+      renderer.domElement.remove();
+      throw e;
+    }
+    const model = gltf.scene;
+    // O'lchamni moslash: eng katta tomoni ~14 birlik, markazda, yerda turadi
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const k = 14 / Math.max(size.x, size.z, size.y * 1.3, 0.001);
+    model.scale.multiplyScalar(k);
+    box.setFromObject(model);
+    const c = box.getCenter(new THREE.Vector3());
+    model.position.x -= c.x;
+    model.position.z -= c.z;
+    model.position.y -= box.min.y;
+    box.setFromObject(model);
+    const h = box.max.y;
+    const radius = box.getBoundingSphere(new THREE.Sphere()).radius;
+    controls.target.set(0, h * 0.45, 0);
+
+    const tokens = init.roofNames.toLowerCase().split(",").map((t) => t.trim()).filter(Boolean);
+    const roofMats: T3.MeshStandardMaterial[] = [];
+    model.traverse((o: T3.Object3D) => {
+      const m = o as T3.Mesh;
+      if (!m.isMesh) return;
+      m.castShadow = true;
+      m.receiveShadow = true;
+      const mats = Array.isArray(m.material) ? m.material : [m.material];
+      const names = [m.name, m.parent?.name || "", ...mats.map((x) => x.name)].join(" ").toLowerCase();
+      if (tokens.length && tokens.some((t) => names.includes(t))) {
+        const cloned = mats.map((x) => {
+          const cm = (x as T3.MeshStandardMaterial).clone();
+          if ("color" in cm && cm.color) roofMats.push(cm);
+          return cm;
+        });
+        m.material = Array.isArray(m.material) ? cloned : cloned[0];
+      }
+    });
+    scene.add(model);
+    onRecolorable(roofMats.length > 0);
+
+    const target = new THREE.Color(init.color);
+    if (roofMats.length) roofMats.forEach((m) => m.color.copy(target));
+    const resizeM = () => {
+      const w = el.clientWidth || 1;
+      const hh = el.clientHeight || 1;
+      renderer.setSize(w, hh, false);
+      camera.aspect = w / hh;
+      const fit = (radius / Math.sin((camera.fov * Math.PI) / 360)) * (w / hh < 1 ? 1.6 : 1.35);
+      const dir = camera.position.clone().sub(controls.target).normalize();
+      camera.position.copy(controls.target).add(dir.multiplyScalar(fit));
+      camera.updateProjectionMatrix();
+    };
+    const roM = new ResizeObserver(resizeM);
+    roM.observe(el);
+    resizeM();
+    let visibleM = true;
+    const ioM = new IntersectionObserver(([e]) => (visibleM = e.isIntersecting), { threshold: 0.01 });
+    ioM.observe(el);
+    let rafM = 0;
+    const tickM = () => {
+      rafM = requestAnimationFrame(tickM);
+      if (!visibleM || document.hidden) return;
+      roofMats.forEach((m) => m.color.lerp(target, 0.12));
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    tickM();
+    return {
+      setColor: (hex) => {
+        target.set(hex);
+      },
+      setShape: () => undefined,
+      setMaterial: () => undefined,
+      dispose: () => {
+        cancelAnimationFrame(rafM);
+        roM.disconnect();
+        ioM.disconnect();
+        controls.dispose();
+        draco.dispose();
+        scene.traverse((o: T3.Object3D) => (o as T3.Mesh).geometry?.dispose());
+        envTex.dispose();
+        pmrem.dispose();
+        renderer.dispose();
+        renderer.domElement.remove();
+      },
+    };
+  }
+  onRecolorable(true);
+
   const plinthMat = new THREE.MeshStandardMaterial({ color: 0xcfc6b6, roughness: 0.9 });
   const plinth = new THREE.Mesh(new THREE.BoxGeometry(13.2, 0.35, 9.2), plinthMat);
   plinth.position.y = 0.175;

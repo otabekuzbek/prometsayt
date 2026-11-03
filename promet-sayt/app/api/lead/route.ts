@@ -1,29 +1,52 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { randomUUID } from "crypto";
-import { saveLead } from "@/lib/store";
+import { getPrivate, saveLead, updateLead } from "@/lib/store";
+import { dispatchLead, resolveIntegrations } from "@/lib/crm";
 import type { Lead } from "@/lib/types";
 
 const clean = (v: unknown, max = 500) => String(v ?? "").replace(/[<>]/g, "").trim().slice(0, max);
+
+/** +998 90 123 45 67 ko'rinishiga keltiradi; xorijiy raqamlarni o'zgartirmaydi */
+function normalizePhone(raw: string) {
+  const d = raw.replace(/\D/g, "");
+  if (d.length === 9) return `+998${d}`;
+  if (d.length === 12 && d.startsWith("998")) return `+${d}`;
+  return raw.trim().startsWith("+") ? `+${d}` : d;
+}
+
+// Oddiy himoya: bitta IP'dan daqiqasiga 5 tadan ko'p so'rov qabul qilinmaydi
+const hits = new Map<string, number[]>();
+function limited(ip: string) {
+  const now = Date.now();
+  const arr = (hits.get(ip) || []).filter((t) => now - t < 60_000);
+  arr.push(now);
+  hits.set(ip, arr);
+  return arr.length > 5;
+}
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Noto'g'ri so'rov" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "So'rov noto'g'ri yuborildi" }, { status: 400 });
   }
-  // Spam tuzog'i: odam ko'rmaydigan maydon
-  if (body.website) return NextResponse.json({ ok: true });
+  if (body.website) return NextResponse.json({ ok: true }); // bot tuzog'i
 
-  const phone = clean(body.phone, 40);
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length < 9) return NextResponse.json({ ok: false, error: "Telefon raqamini to'g'ri kiriting" }, { status: 400 });
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "local";
+  if (limited(ip)) return NextResponse.json({ ok: false, error: "Juda ko'p urinish. Bir daqiqadan keyin qayta yuboring" }, { status: 429 });
+
+  const phoneRaw = clean(body.phone, 40);
+  const digits = phoneRaw.replace(/\D/g, "");
+  if (digits.length < 9 || digits.length > 15) {
+    return NextResponse.json({ ok: false, error: "Telefon raqamini to'liq kiriting, masalan +998 90 123 45 67" }, { status: 400 });
+  }
 
   const lead: Lead = {
     id: randomUUID(),
     createdAt: new Date().toISOString(),
     name: clean(body.name, 80),
-    phone,
+    phone: normalizePhone(phoneRaw),
     region: clean(body.region, 80),
     role: clean(body.role, 60),
     timeline: clean(body.timeline, 60),
@@ -32,44 +55,35 @@ export async function POST(req: Request) {
     calc: clean(body.calc, 1500),
     utm: clean(body.utm, 500),
     page: clean(body.page, 300),
+    status: "yangi",
+    crm: [],
   };
 
-  const results = await Promise.allSettled([saveLead(lead), toAmo(lead), toTelegram(lead)]);
-  if (results.every((r) => r.status === "rejected")) {
-    console.error("Lid saqlanmadi", results);
-    return NextResponse.json({ ok: false, error: "Server xatosi" }, { status: 500 });
+  try {
+    await saveLead(lead);
+  } catch (e) {
+    console.error("Lid saqlanmadi", e);
+    // Saqlash ishlamasa ham CRM'ga yuborishga harakat qilamiz — mijoz yo'qolmasin
+    try {
+      const p = await getPrivate();
+      const r = await dispatchLead(lead, resolveIntegrations(p.integrations));
+      if (r.results.some((x) => x.ok)) return NextResponse.json({ ok: true });
+    } catch (e2) {
+      console.error(e2);
+    }
+    return NextResponse.json({ ok: false, error: "Server xatosi. Iltimos, qo'ng'iroq qiling" }, { status: 500 });
   }
-  results.forEach((r, i) => r.status === "rejected" && console.error(["store", "amo", "telegram"][i], r.reason));
-  return NextResponse.json({ ok: true });
-}
 
-async function toAmo(lead: Lead) {
-  const url = process.env.AMOCRM_WEBHOOK_URL;
-  if (!url) return;
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(lead) });
-  if (!res.ok) throw new Error(`amoCRM ${res.status}`);
-}
-
-async function toTelegram(lead: Lead) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chat = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chat) return;
-  const lines = [
-    "🏠 Yangi murojaat — promet sayt",
-    `Ism: ${lead.name || "—"}`,
-    `Tel: ${lead.phone}`,
-    lead.region && `Hudud: ${lead.region}`,
-    lead.role && `Kim: ${lead.role}`,
-    lead.timeline && `Qachon: ${lead.timeline}`,
-    lead.comment && `Izoh: ${lead.comment}`,
-    lead.calc && `\nKalkulyator:\n${lead.calc}`,
-    `\nManba: ${lead.source} · ${lead.page}`,
-    lead.utm && `UTM: ${lead.utm}`,
-  ].filter(Boolean);
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chat, text: lines.join("\n") }),
+  // CRM va Telegram'ga javob qaytgandan keyin yuboriladi — mijoz kutib qolmaydi
+  after(async () => {
+    try {
+      const p = await getPrivate();
+      const { results, crmLeadId } = await dispatchLead(lead, resolveIntegrations(p.integrations));
+      if (results.length) await updateLead({ ...lead, crm: results, crmLeadId });
+    } catch (e) {
+      console.error("CRM yuborishda xato", e);
+    }
   });
-  if (!res.ok) throw new Error(`Telegram ${res.status}`);
+
+  return NextResponse.json({ ok: true });
 }

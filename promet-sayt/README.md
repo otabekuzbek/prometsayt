@@ -1,56 +1,69 @@
-# Promet Tom Markazi — sayt
+# Promet Tom Markazi — sayt va boshqaruv paneli
 
-Next.js 16 asosidagi tez, SEO'ga tayyor sayt va admin panel. Vercel'ga joylashga tayyor.
+Next.js 16 asosidagi premium sayt: interaktiv 3D uy, CRM integratsiyasi va to'liq admin panel. Vercel'da ishlaydi.
 
-## Imkoniyatlar
+## Sayt imkoniyatlari
 
-**Sayt**
-- Bosh sahifa: foto-hero, obyektlar galereyasi, tom rangi vizualizatori, mahsulotlar, o'rnatilgan kalkulyator, mijozlar fikri, kafolat tekshiruvi, ish jarayoni, savol-javob va forma
-- Obyektlar: viloyat va tur bo'yicha filtr, rasm va video ko'rish oynasi
-- Mahsulotlar katalogi va alohida mahsulot sahifalari
-- Smeta kalkulyatori: 4 xil tom shakli, qiyalik, material ro'yxati (list, konyok, vodostok, vint, plyonka), narx oralig'i, PDF qilib saqlash, natijani lid bilan yuborish
-- Kafolat: sertifikatlar va kafolat raqamini onlayn tekshirish (mijoz ismi qisman yashiriladi)
-- Maqolalar, Biz haqimizda, Aloqa (xarita bilan), Maxfiylik siyosati
-- Mobil pastki panel (Qo'ng'iroq / O'lchov / Telegram), suzuvchi Telegram tugmasi
-- SEO: har sahifa uchun meta, sitemap.xml, robots.txt, Schema.org (RoofingContractor, Product, FAQ, Article)
-- Lidlar: UTM / gclid / yclid bilan saqlanadi, amoCRM va Telegram'ga yuboriladi, Yandex/GA4/Meta konversiyasi ishlaydi
-- Analitika skriptlari sahifa yuklangandan keyin ulanadi — tezlikka ta'sir qilmaydi
+- **Birinchi ekran** — admin paneldan tanlanadi:
+  - standart 3D uy (aylanadi, tom rangi tugmalar bilan almashadi);
+  - **o'zingizning 3D modelingiz (.glb)** — tom qismi nomi bo'yicha bo'yaladi;
+  - keng rasm yoki ovozsiz video.
+- Obyektlar galereyasi (viloyat va tur bo'yicha saralash, rasm va video ko'rish oynasi)
+- Materiallar: chizilib chiqadigan profil kesimi, texnik ko'rsatkichlar
+- 4 bosqichli smeta kalkulyatori: jonli 3D, material ro'yxati, PDF smeta, natija murojaat bilan birga yuboriladi
+- Kafolat hujjati va raqam bo'yicha onlayn tekshiruv
+- Savol-javob, mijozlar fikri, maqolalar, aloqa (xarita bilan)
+- Silliq skroll, rasmlar ochilish animatsiyasi, mobil pastki panel
+- SEO: meta, Open Graph, sitemap, robots, Schema.org
 
-**Admin panel** — `sayt.uz/admin`
-- Obyektlar, sertifikatlar, mahsulotlar, mijozlar fikri, savol-javoblar, maqolalar — qo'shish, tahrirlash, o'chirish, tartibini o'zgartirish
-- Rasm yuklash: bir nechtasini birdan yoki sudrab tashlab; rasmlar avtomatik kichraytiriladi (WEBP, max 2000px)
-- Kafolat reestri — saytdagi tekshiruv shu ro'yxatdan ishlaydi
-- Sozlamalar: telefon, manzil, xarita, ijtimoiy tarmoqlar, bosh ekran rasmi va matni, statistika, analitika ID'lari, kalkulyator narxlari
-- Murojaatlar ro'yxati
-- Saqlangan o'zgarish saytda darhol ko'rinadi
+## Murojaatlar va CRM
 
-## Vercel'ga joylash
+Saytdagi har bir forma va kalkulyator murojaati:
+1. shifrlangan holda saqlanadi (admin → Murojaatlar);
+2. ulangan tizimlarga avtomatik yuboriladi:
+   - **amoCRM (API v4)** — yangi lid, telefonli kontakt, teglar (reklama manbasi ham teg bo'ladi), to'liq izoh (hudud, kalkulyator hisobi, UTM);
+   - **Bitrix24** — `crm.lead.add` orqali, UTM maydonlari bilan;
+   - **Telegram** guruhga xabar;
+   - istalgan **webhook** (n8n, Make, Zapier).
 
-1. **GitHub'ga yuklang.** Ushbu papkani yangi GitHub repozitoriyaga yuklang (`node_modules` va `.next` kerak emas).
-2. **Vercel'da loyiha yarating.** vercel.com → *Add New → Project* → repozitoriyani tanlang → *Deploy*. Sozlamalar avtomatik aniqlanadi (Framework: Next.js).
-3. **Blob Storage ulang.** Loyiha → *Storage* → *Create → Blob* → access: **Public** → loyihaga ulang. `BLOB_READ_WRITE_TOKEN` avtomatik qo'shiladi. Rasmlar va kontent shu yerda saqlanadi.
-4. **Muhit o'zgaruvchilarini kiriting.** Loyiha → *Settings → Environment Variables*:
+Reklama belgilari (utm_source, utm_campaign, gclid, yclid, fbclid) 30 kun eslab qolinadi.
 
-   | Nomi | Majburiy | Izoh |
-   |---|---|---|
-   | `ADMIN_PASSWORD` | ha | Admin panel paroli (kuchli parol tanlang) |
-   | `AUTH_SECRET` | ha | Uzun tasodifiy satr, masalan 40 ta belgi |
-   | `NEXT_PUBLIC_SITE_URL` | ha | Saytning to'liq manzili, masalan `https://promet.uz` |
-   | `AMOCRM_WEBHOOK_URL` | yo'q | amoCRM'ga lid yuborish manzili (integratsiya yoki webhook) |
-   | `TELEGRAM_BOT_TOKEN` | yo'q | @BotFather'dan olingan bot tokeni |
-   | `TELEGRAM_CHAT_ID` | yo'q | Lidlar tushadigan guruh ID'si (bot guruhga qo'shilgan bo'lishi kerak) |
+### amoCRM'ni ulash
+1. amoCRM → Sozlamalar → Integratsiyalar → «+ Integratsiya yaratish» → xususiy integratsiya.
+2. «Kalitlar va dostuplar» bo'limidan **uzoq muddatli token** yarating.
+3. Sayt admin paneli → **CRM va Telegram** → amoCRM manzili (masalan `promet.amocrm.ru`) va tokenni kiriting → Saqlash.
+4. «Sinov murojaatini yuborish» tugmasini bosing — amoCRM'da «Test murojaat» lidi paydo bo'lishi kerak.
 
-5. **Qayta joylang.** *Deployments → ⋯ → Redeploy*.
-6. **Domen ulang.** *Settings → Domains* → domeningizni qo'shing va ko'rsatilgan DNS yozuvlarini domen provayderida kiriting.
-7. **Admin panelga kiring.** `https://domeningiz/admin` → parol → *Sozlamalar*'da manzil, Telegram, xarita va narxlarni kiriting, keyin obyekt rasmlarini yuklang.
+## Admin panel — `sayt/admin`
 
-## Ishga tushirishdan oldin tekshiring
+| Bo'lim | Nima boshqariladi |
+|---|---|
+| Bosh panel | Bugungi murojaatlar, ogohlantirishlar (CRM ulanmagan, rasm yo'q va h.k.) |
+| Murojaatlar | Holat (yangi → bog'lanildi → o'lchov → shartnoma), CRM natijasi, qayta yuborish, o'chirish, Excel'ga yuklash |
+| Bosh sahifa | Birinchi ekran turi, 3D model/rasm/video, sarlavhalar, raqamlar, tom ranglari, har bir bo'lim matni va ko'rinishi |
+| Obyektlar, Mahsulotlar, Sertifikatlar, Mijozlar fikri, Savol-javob, Maqolalar | Qo'shish, tahrirlash, tartiblash, rasm yuklash |
+| Kafolat reestri | Saytdagi tekshiruv shu ro'yxatdan ishlaydi |
+| Aloqa, SEO, analitika | Telefon, manzil, xarita, ijtimoiy tarmoqlar, Google/Yandex/Meta kodlari |
+| Kalkulyator narxlari | So'm/m² oraliqlari |
+| CRM va Telegram | Integratsiyalar va sinov |
+| Parol | Admin parolini o'zgartirish |
 
-- **Narxlar** (Sozlamalar → Kalkulyator narxlari va har bir mahsulot narxi) — boshlang'ich qiymatlar taxminiy, haqiqiy narxlarni kiriting.
-- **Manzil, Telegram, xarita** — hozircha bo'sh.
-- **Obyekt sarlavhalari va maydonlari** — Instagram postlaridan olingan namuna; haqiqiy ma'lumot va rasmlar bilan almashtiring.
-- **Kafolat reestri** — `PRM-2026-0001` namuna yozuvini o'chirib, haqiqiy kafolatlarni kiriting.
-- **Logotip** — `public/logo.png` rastr fayldan tayyorlangan; vektor (SVG) fayl bo'lsa almashtiring.
+Fayllar (3D model 200 MB gacha, video, rasmlar) brauzerdan to'g'ridan-to'g'ri Vercel Blob'ga yuklanadi. Rasmlar avtomatik siqiladi.
+
+### 3D model tayyorlash
+- Blender: File → Export → glTF 2.0 → format **GLB**. SketchUp/3ds Max'da GLB eksport plagini orqali.
+- Tom qismining materialiga yoki obyektiga `roof` (yoki `tom`) nomini bering — shu qism sayt rang tugmalari bilan bo'yaladi.
+- Tavsiya: 20 MB gacha, Draco siqish qo'llab-quvvatlanadi.
+
+## Vercel muhit o'zgaruvchilari
+
+| Nomi | Majburiy | Izoh |
+|---|---|---|
+| `ADMIN_PASSWORD` | ha | Admin paroli (zaxira kirish) |
+| `AUTH_SECRET` | ha | 40 belgili tasodifiy satr. **Bir marta qo'yiladi, o'zgartirilmaydi** — maxfiy ma'lumotlar shu kalit bilan shifrlanadi |
+| `NEXT_PUBLIC_SITE_URL` | ha | Saytning to'liq manzili |
+| `BLOB_READ_WRITE_TOKEN` | ha | Storage → Blob ulanganda avtomatik |
+| `AMOCRM_*`, `BITRIX24_WEBHOOK`, `TELEGRAM_*` | yo'q | Admin panelda bo'sh qolsa ishlatiladi |
 
 ## Lokal ishga tushirish
 
@@ -59,17 +72,17 @@ npm install
 cp .env.example .env.local   # ADMIN_PASSWORD va AUTH_SECRET'ni to'ldiring
 npm run dev                  # http://localhost:3000
 ```
-
-Lokalda `BLOB_READ_WRITE_TOKEN` bo'lmasa, ma'lumotlar va rasmlar loyiha ichidagi `.data/` papkasida saqlanadi.
+Lokalda ma'lumotlar `.data/` papkasida saqlanadi.
 
 ## Tuzilma
 
 ```
-app/(site)/        — ochiq sahifalar
-app/admin/         — admin panel (login, bo'limlar, sozlamalar, lidlar)
-app/api/           — lid, rasm yuklash, kafolat tekshiruvi
-components/        — sayt va admin komponentlari
-lib/seed.ts        — boshlang'ich kontent
-lib/store.ts       — ma'lumotlar ombori (Vercel Blob yoki lokal)
-lib/admin-schema.ts — admin formalar tuzilmasi (yangi maydon qo'shish shu yerda)
+app/(site)/          ochiq sahifalar
+app/admin/           admin panel
+app/api/lead         murojaat qabul qilish va CRM'ga yuborish
+app/api/upload       fayl yuklash (client — Vercel Blob'ga to'g'ridan-to'g'ri)
+components/          sayt va admin komponentlari (RoofScene — 3D sahna)
+lib/crm.ts           amoCRM, Bitrix24, Telegram, webhook
+lib/store.ts         ma'lumotlar ombori va shifrlash
+lib/admin-schema.ts  admin formalar tuzilmasi
 ```

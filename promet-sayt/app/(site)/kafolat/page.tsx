@@ -17,12 +17,12 @@ export default async function Page() {
   return (
     <>
       <PageHero crumb={[{ label: "Kafolat" }]} title="Kafolat va sertifikatlar" text={`${s.warrantyYears} yillik kafolat — raqamli hujjat va ochiq reestr bilan.`} />
-      <section className="section dark blueprint">
-        <div className="wrap"><WarrantyCheck years={s.warrantyYears} /></div>
+      <section className="section porcelain">
+        <div className="wrap"><WarrantyCheck years={s.warrantyYears} title={c.home.warrantyTitle} text={c.home.warrantyText} /></div>
       </section>
       <section className="section">
         <div className="wrap">
-          <div className="values" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+          <div className="values">
             {[
               [`${s.warrantyYears} yil muddat`, "Kafolat yopilgan tomga beriladi va hujjatda muddati bilan yoziladi."],
               ["Yozma hujjat", "Har bir mijozga raqamli, muhrli kafolat hujjati topshiriladi."],

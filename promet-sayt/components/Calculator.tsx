@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Pricing } from "@/lib/types";
+import type { Pricing, RoofColor } from "@/lib/types";
 import { ROOF_COLORS, mln, som } from "@/lib/utils";
+
 import LeadForm from "./LeadForm";
 import RoofScene, { type RoofShape } from "./RoofScene";
 import { Arrow } from "./Icons";
@@ -50,12 +51,13 @@ function Slider({ id, label, value, min, max, step, unit, onChange }: { id: stri
   );
 }
 
-export default function Calculator({ pricing, withForm = true }: { pricing: Pricing; withForm?: boolean }) {
+export default function Calculator({ pricing, colors: palette, withForm = true }: { pricing: Pricing; colors?: RoofColor[]; withForm?: boolean }) {
+  const COLORS = palette && palette.length ? palette : ROOF_COLORS;
   const [step, setStep] = useState(0);
   const [visited, setVisited] = useState(0);
   const [shape, setShape] = useState<RoofShape>("doppi");
   const [material, setMaterial] = useState<"cherepitsa" | "profnastil">("cherepitsa");
-  const [color, setColor] = useState(ROOF_COLORS[1]);
+  const [color, setColor] = useState(COLORS[0]);
   const [length, setLength] = useState(14);
   const [width, setWidth] = useState(11);
   const [angle, setAngle] = useState(28);
@@ -99,7 +101,7 @@ export default function Calculator({ pricing, withForm = true }: { pricing: Pric
   const shapeLabel = SHAPES.find((s) => s.id === shape)!.label;
   const matLabel = material === "cherepitsa" ? "Metallocherepitsa" : "Profnastil";
   const summary = [
-    `${shapeLabel}, ${matLabel}, RAL ${color.ral} (${color.name})`,
+    `${shapeLabel}, ${matLabel}, ${color.name}${color.ral ? ` (RAL ${color.ral})` : ""}`,
     `Uy: ${length} × ${width} m, qiyalik ${angle}°, svess ${overhang} m`,
     `Tom maydoni ≈ ${r.area.toFixed(0)} m², list ≈ ${r.sheetArea.toFixed(0)} m²`,
     `Material: ${som(r.matMin)} – ${som(r.matMax)}`,
@@ -108,7 +110,7 @@ export default function Calculator({ pricing, withForm = true }: { pricing: Pric
 
   return (
     <div className="calc">
-      <div className="calc-stage blueprint">
+      <div className="calc-stage">
         <RoofScene color={color.hex} shape={shape} material={material} label={`${shapeLabel}, ${matLabel}, rang ${color.name}. 3D ko'rinish.`} />
         <div className="calc-total" aria-live="polite">
           <div className="print-only">
@@ -154,10 +156,10 @@ export default function Calculator({ pricing, withForm = true }: { pricing: Pric
               <button type="button" aria-pressed={material === "profnastil"} onClick={() => setMaterial("profnastil")}>Profnastil</button>
             </div>
             <div style={{ display: "grid", gap: 12 }}>
-              <span className="note">Rang: <b style={{ color: "var(--ink)" }}>{color.name}, RAL {color.ral}</b></span>
-              <div className="color-dots light-dots" role="group" aria-label="Tom rangi">
-                {ROOF_COLORS.map((c) => (
-                  <button key={c.ral} type="button" className="color-dot" style={{ background: c.hex }} aria-pressed={c.ral === color.ral} aria-label={`${c.name}, RAL ${c.ral}`} onClick={() => setColor(c)} />
+              <span className="note">Rang: <b style={{ color: "var(--ink)" }}>{color.name}{color.ral ? `, RAL ${color.ral}` : ""}</b></span>
+              <div className="swatches" style={{ justifyContent: "flex-start" }} role="group" aria-label="Tom rangi">
+                {COLORS.map((c) => (
+                  <button key={c.hex + c.name} type="button" className="swatch-btn" style={{ background: c.hex }} aria-pressed={c.hex === color.hex && c.name === color.name} aria-label={`${c.name}${c.ral ? `, RAL ${c.ral}` : ""}`} onClick={() => setColor(c)} />
                 ))}
               </div>
             </div>
@@ -197,7 +199,7 @@ export default function Calculator({ pricing, withForm = true }: { pricing: Pric
             <button type="button" className="btn btn-ghost btn-sm no-print" onClick={() => window.print()} style={{ justifySelf: "start" }}>Smetani PDF qilib saqlash</button>
             {withForm && (
               <div id="calc-lead" style={{ display: "grid", gap: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }} className="no-print">
-                <b style={{ fontFamily: "var(--f-display)", fontSize: 20, color: "var(--ink)", fontWeight: 600 }}>Aniq smetani oling</b>
+                <b style={{ fontFamily: "var(--f-serif)", fontSize: 30, color: "var(--ink)", fontWeight: 500, lineHeight: 1.1 }}>Aniq smetani oling</b>
                 <p className="note">Hisobingiz murojaatga avtomatik qo&apos;shiladi — qayta tushuntirish shart emas.</p>
                 <LeadForm source="kalkulyator" calc={summary} compact submitLabel="Aniq smetani olish" />
               </div>

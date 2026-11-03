@@ -45,9 +45,8 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           <ProductGallery images={p.images} name={p.name} ribs={p.slug !== "metallocherepitsa"} />
           <div style={{ display: "grid", gap: 24 }}>
             <div className="price-box">
-              <span className="muted">Narx</span>
-              <span className="p">{p.priceFrom ? `${som(p.priceFrom)} dan` : "So'rov bo'yicha"}</span>
-              {p.priceFrom > 0 && <span className="muted" style={{ marginTop: -10 }}>1 {p.unit} uchun, materialning o&apos;zi</span>}
+                            <span className="p">{p.priceFrom ? `${som(p.priceFrom)} dan` : "Narxi o'lchovdan keyin"}</span>
+              <span className="muted" style={{ marginTop: -6 }}>{p.priceFrom > 0 ? `1 ${p.unit} uchun, faqat material` : "Tom maydoni va murakkabligiga qarab yozma smetada"}</span>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <Link href="/kalkulyator" className="btn btn-navy">Tomim narxini hisoblash</Link>
                 <a href={telHref(c.settings.phone)} className="btn btn-ghost">{c.settings.phone}</a>
@@ -79,10 +78,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <section className="section">
         <div className="wrap faq-layout">
           <div>
-                        <h2 className="h-lg" style={{ marginTop: 14 }}>Qaysi qalinlik va rang sizga mos?</h2>
+            <h2 className="h-lg">Qaysi qalinlik va rang sizga mos?</h2>
             <p className="lead" style={{ marginTop: 14 }}>Usta joyga kelib tomni o&apos;lchaydi va namunalarni ko&apos;rsatadi. O&apos;lchov bepul.</p>
           </div>
-          <div className="contact-card"><LeadForm source={`mahsulot-${p.slug}`} compact /></div>
+          <div className="contact-card"><h3 className="h-sm">Bepul o&apos;lchovga yoziling</h3><LeadForm source={`mahsulot-${p.slug}`} compact /></div>
         </div>
       </section>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />

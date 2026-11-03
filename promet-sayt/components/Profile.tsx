@@ -37,9 +37,9 @@ export default function Profile({ kind, label }: { kind: ProfileKind; label: str
   const d = path(kind);
   return (
     <svg className="profile" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${label} profili`} key={kind}>
-      <path d={`${d} L 920 300 L 80 300 Z`} fill="#7bd07f" opacity=".08" />
-      <path className="draw" d={d} fill="none" stroke="#7bd07f" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
-      <g className="dim" stroke="#8c98a8" strokeWidth="1.5" fill="#9eadc2" fontFamily="var(--f-body)" fontSize="22">
+      <path d={`${d} L 920 300 L 80 300 Z`} fill="#11305a" opacity=".05" />
+      <path className="draw" d={d} fill="none" stroke="#11305a" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
+      <g className="dim" stroke="#9aa3ad" strokeWidth="1.2" fill="#667180" fontFamily="var(--f-ui)" fontSize="22">
         <path d="M80 300 V330 M920 300 V330 M80 318 H920" fill="none" />
         <text x="500" y="356" textAnchor="middle" stroke="none">{label}</text>
       </g>

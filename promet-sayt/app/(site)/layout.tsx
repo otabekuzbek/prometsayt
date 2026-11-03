@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Analytics from "@/components/Analytics";
+import Motion from "@/components/Motion";
 import { content } from "@/lib/data";
 import { siteUrl, telHref, telegramHref } from "@/lib/utils";
 
@@ -13,9 +14,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     url: siteUrl(),
     logo: `${siteUrl()}/logo.png`,
     telephone: s.phone,
-    address: { "@type": "PostalAddress", streetAddress: s.address, addressCountry: "UZ" },
+    ...(s.address ? { address: { "@type": "PostalAddress", streetAddress: s.address, addressCountry: "UZ" } } : {}),
     areaServed: "UZ",
-    sameAs: [s.instagram, telegramHref(s.telegram), s.youtube].filter(Boolean),
+    sameAs: [s.instagram, telegramHref(s.telegram), s.facebook, s.youtube].filter(Boolean),
   };
   return (
     <>
@@ -23,6 +24,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main>{children}</main>
       <Footer s={s} />
       <Analytics s={s} />
+      <Motion />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
     </>
   );

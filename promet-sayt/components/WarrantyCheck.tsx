@@ -13,17 +13,17 @@ function Seal({ stamp, years }: { stamp: boolean; years: number }) {
       </defs>
       <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" strokeWidth="3" />
       <circle cx="60" cy="60" r="34" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <text fontSize="11" fontWeight="800" fill="currentColor" letterSpacing="2.4" fontFamily="var(--f-body)">
+      <text fontSize="11" fontWeight="800" fill="currentColor" letterSpacing="2.4" fontFamily="var(--f-ui)">
         <textPath href="#seal-c">PROMET TOM MARKAZI • KAFOLAT •</textPath>
       </text>
-      <text x="60" y="58" textAnchor="middle" fontSize="26" fontWeight="700" fill="currentColor" fontFamily="var(--f-display)">{years}</text>
-      <text x="60" y="76" textAnchor="middle" fontSize="11" fontWeight="800" fill="currentColor" fontFamily="var(--f-body)">YIL</text>
+      <text x="60" y="58" textAnchor="middle" fontSize="26" fontWeight="700" fill="currentColor" fontFamily="var(--f-serif)">{years}</text>
+      <text x="60" y="76" textAnchor="middle" fontSize="11" fontWeight="800" fill="currentColor" fontFamily="var(--f-ui)">YIL</text>
     </svg>
   );
 }
 
 /** Kafolat hujjati ko'rinishi + raqam bo'yicha onlayn tekshiruv */
-export default function WarrantyCheck({ years = 15, showDoc = true }: { years?: number; showDoc?: boolean }) {
+export default function WarrantyCheck({ years = 15, showDoc = true, title, text }: { years?: number; showDoc?: boolean; title?: string; text?: string }) {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [res, setRes] = useState<Result | null>(null);
@@ -47,7 +47,7 @@ export default function WarrantyCheck({ years = 15, showDoc = true }: { years?: 
   const form = (
     <form className="check-box" onSubmit={check} id="tekshirish">
       <label htmlFor="w-num" className="field" style={{ gap: 4 }}>
-        <span style={{ fontWeight: 700, fontSize: 18, color: "#fff" }}>Kafolat raqamini tekshiring</span>
+        <span style={{ fontWeight: 600, fontSize: 17, color: "var(--ink)" }}>Kafolat raqamini tekshiring</span>
         <span className="muted" style={{ fontSize: 15 }}>Raqam kafolat hujjatining yuqori qismida yozilgan.</span>
       </label>
       <div className="check-row">
@@ -61,7 +61,7 @@ export default function WarrantyCheck({ years = 15, showDoc = true }: { years?: 
         <div className="check-result" role="status">
           <span className="badge-ok">{f.active ? "✓ Kafolat amalda" : "Kafolat muddati tugagan"}</span>
           <div><b>{f.number}</b>, {f.client}</div>
-          <div className="muted" style={{ color: "var(--muted)" }}>Amal qilish muddati: {formatDate(f.validUntil)} gacha</div>
+          <div className="muted">Amal qilish muddati: {formatDate(f.validUntil)} gacha</div>
         </div>
       )}
     </form>
@@ -73,8 +73,8 @@ export default function WarrantyCheck({ years = 15, showDoc = true }: { years?: 
     <div className="warranty">
       <div style={{ display: "grid", gap: 22 }}>
         <span className="eyebrow">Kafolat</span>
-        <h2 className="h-lg">{years} yillik kafolat — reestrda yozilgan</h2>
-        <p className="lead">Har bir yopilgan tomga raqamli hujjat beramiz. Raqamni shu yerda istalgan vaqt tekshirasiz — uy sotilganda yangi egasi ham.</p>
+        <h2 className="h-lg">{title || "Kafolat reestrda yozilgan"}</h2>
+        <p className="lead">{text || "Har bir yopilgan tomga raqamli hujjat beramiz. Raqamni shu yerda istalgan vaqt tekshirasiz."}</p>
         {form}
       </div>
       <article className="cert-doc" aria-label={f ? "Topilgan kafolat hujjati" : "Kafolat hujjati namunasi"}>

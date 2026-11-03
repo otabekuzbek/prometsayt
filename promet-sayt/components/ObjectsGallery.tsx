@@ -1,96 +1,32 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import type { RoofObject } from "@/lib/types";
 import { OBJECT_TYPES, placeName, videoEmbed } from "@/lib/utils";
 import RoofArt from "./RoofArt";
-import { Arrow, Close, Play } from "./Icons";
+import Reveal from "./Reveal";
+import { Close } from "./Icons";
 
-export function ObjectCard({ o, i, onOpen }: { o: RoofObject; i: number; onOpen: () => void }) {
+function GalleryItem({ o, i, onOpen }: { o: RoofObject; i: number; onOpen: () => void }) {
+  const meta = [o.product, o.area > 0 ? `${o.area} m²` : ""].filter(Boolean).join(", ");
   return (
-    <button type="button" className="obj-card" onClick={onOpen} aria-label={`${placeName(o.region, o.district)}: ${o.title}. Ko'rish`}>
-      <div className="media">
-        {o.images[0] ? (
-          <Image src={o.images[0]} alt="" fill sizes="(max-width: 640px) 85vw, 400px" style={{ objectFit: "cover" }} draggable={false} />
-        ) : (
-          <RoofArt variant={i} label={o.title} />
-        )}
-      </div>
-      <div className="cap">
+    <button type="button" className="g-item" onClick={onOpen} aria-label={`${placeName(o.region, o.district)}: ${o.title}. Rasmlarni ochish`}>
+      <Reveal kind="img" className="g-media">
+        <div className="zoom">
+          {o.images[0] ? (
+            <Image src={o.images[0]} alt="" fill sizes="(max-width: 960px) 100vw, 60vw" style={{ objectFit: "cover" }} />
+          ) : (
+            <RoofArt variant={i} label={o.title} />
+          )}
+        </div>
+        <span className="g-view" aria-hidden="true">{o.videoUrl ? "Video" : "Ko'rish"}</span>
+      </Reveal>
+      <div className="g-cap">
         <span className="script">{placeName(o.region, o.district)}</span>
         <h3>{o.title}</h3>
-      </div>
-      <div className="meta">
-        <span className="tag">{o.product}</span>
-        {o.area > 0 && <span className="tag">{o.area} m²</span>}
-        {o.videoUrl && <span className="tag" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Play size={12} /> Video</span>}
-        <span className="open" aria-hidden="true"><Arrow /></span>
+        {meta && <span className="meta">{meta}</span>}
       </div>
     </button>
-  );
-}
-
-export function ObjectsRail({ objects }: { objects: RoofObject[] }) {
-  const [open, setOpen] = useState<RoofObject | null>(null);
-  const rail = useRef<HTMLDivElement>(null);
-  const drag = useRef({ down: false, x: 0, left: 0, moved: false });
-
-  const scrollBy = (d: number) => {
-    const el = rail.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>(".obj-card");
-    el.scrollBy({ left: d * ((card?.offsetWidth || 360) + 20), behavior: "smooth" });
-  };
-
-  return (
-    <>
-      <div className="rail-wrap">
-        <div
-          ref={rail}
-          className="rail"
-          onPointerDown={(e) => {
-            if (e.pointerType !== "mouse" || !rail.current) return;
-            drag.current = { down: true, x: e.clientX, left: rail.current.scrollLeft, moved: false };
-          }}
-          onPointerMove={(e) => {
-            const d = drag.current;
-            if (!d.down || !rail.current) return;
-            const dx = e.clientX - d.x;
-            if (Math.abs(dx) > 5) {
-              d.moved = true;
-              rail.current.classList.add("dragging");
-            }
-            rail.current.scrollLeft = d.left - dx;
-          }}
-          onPointerUp={() => {
-            drag.current.down = false;
-            rail.current?.classList.remove("dragging");
-          }}
-          onPointerLeave={() => {
-            drag.current.down = false;
-            rail.current?.classList.remove("dragging");
-          }}
-          onClickCapture={(e) => {
-            if (drag.current.moved) {
-              e.stopPropagation();
-              e.preventDefault();
-              drag.current.moved = false;
-            }
-          }}
-        >
-          {objects.map((o, i) => (
-            <ObjectCard key={o.id} o={o} i={i} onOpen={() => setOpen(o)} />
-          ))}
-        </div>
-      </div>
-      {objects.length > 2 && (
-        <div className="rail-ctrl" style={{ marginTop: 8 }}>
-          <button type="button" onClick={() => scrollBy(-1)} aria-label="Oldingi obyektlar"><Arrow left /></button>
-          <button type="button" onClick={() => scrollBy(1)} aria-label="Keyingi obyektlar"><Arrow /></button>
-        </div>
-      )}
-      {open && <Lightbox obj={open} onClose={() => setOpen(null)} />}
-    </>
   );
 }
 
@@ -113,9 +49,9 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
   return (
     <>
       {filters && (regions.length > 1 || types.length > 1) && (
-        <div style={{ display: "grid", gap: 12 }}>
+        <div style={{ display: "grid", gap: 12, marginBottom: 48 }}>
           {regions.length > 1 && (
-            <div className="chips" role="group" aria-label="Viloyat bo'yicha">
+            <div className="chips" role="group" aria-label="Viloyat bo'yicha saralash">
               <button className="chip" aria-pressed={region === "Barchasi"} onClick={() => setRegion("Barchasi")}>
                 Barcha viloyatlar <small>{objects.length}</small>
               </button>
@@ -127,7 +63,7 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
             </div>
           )}
           {types.length > 1 && (
-            <div className="chips" role="group" aria-label="Obyekt turi">
+            <div className="chips" role="group" aria-label="Obyekt turi bo'yicha saralash">
               {["Barchasi", ...types].map((t) => (
                 <button key={t} className="chip" aria-pressed={type === t} onClick={() => setType(t)}>
                   {t === "Barchasi" ? "Barcha turlar" : OBJECT_TYPES[t]}
@@ -138,11 +74,11 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
         </div>
       )}
       {list.length === 0 ? (
-        <div className="empty" style={{ marginTop: 32 }}>Bu bo&apos;limda hozircha obyekt yo&apos;q.</div>
+        <div className="empty">Bu bo&apos;limda hozircha obyekt yo&apos;q.</div>
       ) : (
-        <div className="obj-grid">
+        <div className="gallery" key={`${region}-${type}`}>
           {list.map((o, i) => (
-            <ObjectCard key={o.id} o={o} i={i} onOpen={() => setOpen(o)} />
+            <GalleryItem key={o.id} o={o} i={i} onOpen={() => setOpen(o)} />
           ))}
         </div>
       )}
@@ -151,7 +87,7 @@ export default function ObjectsGallery({ objects, filters = true, limit }: { obj
   );
 }
 
-function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
+export function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
   const video = videoEmbed(obj.videoUrl);
   const slides: ({ kind: "img"; src: string } | { kind: "video"; src: string } | { kind: "art" })[] = [
     ...(video ? [{ kind: "video" as const, src: video }] : []),
@@ -167,11 +103,14 @@ function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
       if (e.key === "ArrowRight") go(1);
       if (e.key === "ArrowLeft") go(-1);
     };
+    const lenis = (window as unknown as { __lenis?: { stop: () => void; start: () => void } }).__lenis;
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    lenis?.stop();
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      lenis?.start();
     };
   });
 
@@ -179,23 +118,23 @@ function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
   return (
     <div className="lightbox" role="dialog" aria-modal="true" aria-label={obj.title}>
       <div className="lightbox-top">
-        <div>
-          <div className="script" style={{ color: "var(--green-hi)", fontSize: 24 }}>{placeName(obj.region, obj.district)}</div>
-          <b style={{ fontSize: 18 }}>{obj.title}</b>
-          <div style={{ fontSize: 14, opacity: 0.75 }}>
+        <div style={{ display: "grid", gap: 6 }}>
+          <span className="script" style={{ color: "var(--green-hi)", fontSize: 24 }}>{placeName(obj.region, obj.district)}</span>
+          <h3>{obj.title}</h3>
+          <span style={{ fontSize: 14, opacity: 0.7 }}>
             {[obj.product, obj.area ? `${obj.area} m²` : "", String(obj.year), OBJECT_TYPES[obj.type]].filter(Boolean).join(", ")}
-          </div>
+          </span>
         </div>
-        <button className="icon-btn" onClick={onClose} aria-label="Yopish"><Close /></button>
+        <button className="icon-btn" onClick={onClose} aria-label="Yopish" autoFocus><Close /></button>
       </div>
       <div className="lightbox-stage">
         {s.kind === "img" && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={s.src} alt={obj.title} />
+          <img key={s.src} src={s.src} alt={`${obj.title}, ${i + 1}-rasm`} />
         )}
         {s.kind === "video" && <iframe src={s.src} title={obj.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />}
         {s.kind === "art" && (
-          <div style={{ width: "min(900px,100%)", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden" }}>
+          <div style={{ width: "min(900px,100%)", aspectRatio: "4/3", overflow: "hidden" }}>
             <RoofArt label={obj.title} />
           </div>
         )}
@@ -214,7 +153,7 @@ function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => void }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={x.src} alt="" />
               ) : (
-                <span style={{ display: "grid", placeItems: "center", height: "100%", background: "#222", color: "#fff" }}><Play /></span>
+                <span style={{ display: "grid", placeItems: "center", height: "100%", background: "#222", color: "#fff", fontSize: 12 }}>Video</span>
               )}
             </button>
           ))}

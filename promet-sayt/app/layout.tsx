@@ -1,24 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/unbounded/index.css";
-import "@fontsource-variable/manrope/index.css";
+import "@fontsource-variable/cormorant-garamond/index.css";
+import "@fontsource-variable/geist/index.css";
 import "@fontsource/marck-script/latin.css";
 import "@fontsource/marck-script/cyrillic.css";
 import "./globals.css";
+import { getContent } from "@/lib/store";
 import { siteUrl } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl()),
-  title: { default: "Promet Tom Markazi — tom yopish 15 yil kafolat bilan", template: "%s | Promet Tom Markazi" },
-  description:
-    "Profnastil, metallocherepitsa, tunkafon va butlovchi qismlar. Bepul o'lchov, aniq smeta, montaj va 15 yillik kafolat — O'zbekiston bo'ylab.",
-  openGraph: { type: "website", locale: "uz_UZ", siteName: "Promet Tom Markazi", images: ["/logo.png"] },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { settings: s } = await getContent();
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: s.metaTitle || s.companyName, template: `%s | ${s.companyName}` },
+    description: s.metaDescription,
+    openGraph: { type: "website", locale: "uz_UZ", siteName: s.companyName, images: [s.ogImage || "/logo.png"] },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
-export const viewport: Viewport = { themeColor: "#0a1a33", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="uz">
+    <html lang="uz" suppressHydrationWarning>
+      <head>
+        {/* JS yoqilgan bo'lsa animatsiyalar ishlaydi, aks holda kontent darhol ko'rinadi */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body>{children}</body>
     </html>
   );

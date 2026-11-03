@@ -15,3 +15,4 @@ export const Close = ({ size }: P) => (<svg {...s(size)}><path d="M18 6 6 18M6 6
 export const Instagram = ({ size }: P) => (<svg {...s(size)}><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>);
 export const Youtube = ({ size }: P) => (<svg {...s(size)}><path d="M22.5 6.4a2.8 2.8 0 0 0-2-2C18.9 4 12 4 12 4s-6.9 0-8.5.4a2.8 2.8 0 0 0-2 2A29 29 0 0 0 1 12a29 29 0 0 0 .5 5.6 2.8 2.8 0 0 0 2 2c1.6.4 8.5.4 8.5.4s6.9 0 8.5-.4a2.8 2.8 0 0 0 2-2A29 29 0 0 0 23 12a29 29 0 0 0-.5-5.6z"/><path d="m10 15 5-3-5-3z"/></svg>);
 export const Play = ({ size }: P) => (<svg {...s(size)}><path d="m6 4 14 8-14 8z" fill="currentColor"/></svg>);
+export const Facebook = ({ size }: P) => (<svg {...s(size)}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>);
