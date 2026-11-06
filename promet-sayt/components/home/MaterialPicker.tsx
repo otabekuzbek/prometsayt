@@ -2,19 +2,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Product } from "@/lib/types";
+import type { Product, RoofColor } from "@/lib/types";
 import { som } from "@/lib/utils";
-import Profile, { type ProfileKind } from "../Profile";
+import { closeRender, RENDERS } from "@/lib/renders";
 import { Arrow } from "../Icons";
 
-const KINDS = ["metallocherepitsa", "profnastil", "tunkafon", "butlovchi-qismlar"];
-
-export default function MaterialPicker({ products }: { products: Product[] }) {
+export default function MaterialPicker({ products, colors }: { products: Product[]; colors: RoofColor[] }) {
   const [i, setI] = useState(0);
+  const [c, setC] = useState(colors[0]);
   const p = products[i];
   if (!p) return null;
-  const kind = (KINDS.includes(p.slug) ? p.slug : "profnastil") as ProfileKind;
   const specs = p.specs.map((sp) => sp.split(":")).filter((x) => x.length > 1).slice(0, 3);
+  // Mahsulot rasmi yuklangan bo'lsa — o'sha, aks holda realistik yaqin plan
+  const own = p.images[0];
+  const viz = p.slug.includes("profnastil") ? RENDERS.profnastil : closeRender(c?.hex || "#45494E");
+  const showSwatches = !own && !p.slug.includes("profnastil") && colors.length > 1;
 
   return (
     <div>
@@ -27,16 +29,25 @@ export default function MaterialPicker({ products }: { products: Product[] }) {
       </div>
       <div className="mat-body" role="tabpanel" id="mat-panel" aria-labelledby={`mat-tab-${i}`}>
         <div className="mat-visual">
-          {p.images[0] ? (
-            <Image key={p.images[0]} src={p.images[0]} alt={p.name} fill sizes="(max-width: 960px) 100vw, 58vw" style={{ objectFit: "cover" }} />
+          {own ? (
+            <Image key={own} src={own} alt={p.name} fill sizes="(max-width: 960px) 100vw, 58vw" style={{ objectFit: "cover" }} />
           ) : (
-            <Profile kind={kind} label={`${p.name}, ${p.thicknesses}`} />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={viz} src={viz} alt={`${p.name}, ${c?.name || ""} rangida — vizualizatsiya`} loading="lazy" />
           )}
+          {showSwatches && (
+            <div className="swatches" role="group" aria-label="Rangni tanlash">
+              {colors.map((x) => (
+                <button key={x.hex + x.name} type="button" className="swatch-btn" style={{ background: x.hex }} aria-pressed={x === c} aria-label={x.name} onClick={() => setC(x)} />
+              ))}
+            </div>
+          )}
+          {showSwatches && c && <span className="tagline">{c.name}{c.ral ? ` · RAL ${c.ral}` : ""}</span>}
         </div>
         <div className="mat-info" key={p.id}>
           <div style={{ display: "grid", gap: 10 }}>
             <span className="cat">{p.category}</span>
-            <p style={{ fontSize: 19, color: "var(--ink)", lineHeight: 1.55 }}>{p.short}</p>
+            <p style={{ fontSize: 19, color: "var(--tx)", lineHeight: 1.55 }}>{p.short}</p>
           </div>
           <table className="spec-table">
             <tbody>

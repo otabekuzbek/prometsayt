@@ -188,11 +188,49 @@ export const HOME_GROUPS: Group[] = [
       { key: "heroTitle", label: "Asosiy sarlavha", type: "text" },
       { key: "heroText", label: "Sarlavha osti matni", type: "textarea" },
       { key: "heroCta", label: "Asosiy tugma matni", type: "text" },
+      { key: "heroTime", label: "3D sahna yorug'ligi", type: "select", showIf: { key: "heroMode", equals: ["3d", "model"] }, options: [
+        { value: "dusk", label: "Shom — derazalarda chiroq (tavsiya)" }, { value: "golden", label: "Oltin soat" }, { value: "day", label: "Kunduz" },
+      ] },
+      { key: "heroTrust", label: "Ishonch belgilari", type: "lines", help: "Tugmalar ostida belgicha bilan chiqadi. Har qatorda bittadan, 2–4 ta" },
       { key: "stats", label: "Raqamlar", type: "repeater", itemLabel: "raqam", fields: [
         { key: "value", label: "Qiymat", type: "text" }, { key: "label", label: "Izoh", type: "text" },
       ] },
       { key: "roofColors", label: "Tom ranglari", type: "repeater", itemLabel: "rang", help: "Bosh sahifa va kalkulyatordagi rang tugmalari", fields: [
         { key: "name", label: "Nomi", type: "text" }, { key: "ral", label: "RAL", type: "text" }, { key: "hex", label: "Rang", type: "color" },
+      ] },
+    ],
+  },
+  {
+    group: "Taklif lentasi",
+    help: "Birinchi ekrandan keyingi ajralib turadigan lenta. Muddat qo'yilsa — teskari sanoq ko'rinadi va muddat o'tgach lenta o'zi yashirinadi.",
+    fields: [
+      { key: "showOffer", label: "Lentani ko'rsatish", type: "toggle" },
+      { key: "offerTitle", label: "Sarlavha", type: "text" },
+      { key: "offerText", label: "Matn", type: "textarea" },
+      { key: "offerDeadline", label: "Muddat (ixtiyoriy)", type: "date" },
+    ],
+  },
+  {
+    group: "Oldin va keyin",
+    help: "Eski tom muammolari va yangi tom farqi. Rasm yuklamasangiz, 3D vizualizatsiya ko'rsatiladi. Haqiqiy obyektingizning oldin/keyin fotosi eng kuchli ta'sir qiladi.",
+    fields: [
+      { key: "showPain", label: "Bo'limni ko'rsatish", type: "toggle" },
+      { key: "painTitle", label: "Sarlavha", type: "text" },
+      { key: "painText", label: "Matn", type: "textarea" },
+      { key: "painItems", label: "Muammolar", type: "repeater", itemLabel: "muammo", fields: [
+        { key: "title", label: "Nomi", type: "text" }, { key: "text", label: "Tavsif", type: "textarea" },
+      ] },
+      { key: "beforeImage", label: "\"Oldin\" rasmi", type: "image" },
+      { key: "afterImage", label: "\"Keyin\" rasmi", type: "image", help: "Ikkala rasm bir xil burchakdan olingan bo'lsa, surgich effekti eng yaxshi ishlaydi" },
+    ],
+  },
+  {
+    group: "Nega biz",
+    fields: [
+      { key: "showWhy", label: "Bo'limni ko'rsatish", type: "toggle" },
+      { key: "whyTitle", label: "Sarlavha", type: "text" },
+      { key: "whyItems", label: "Sabablar", type: "repeater", itemLabel: "sabab", fields: [
+        { key: "title", label: "Nomi", type: "text" }, { key: "text", label: "Tavsif", type: "textarea" },
       ] },
     ],
   },
@@ -262,6 +300,7 @@ export const HOME_GROUPS: Group[] = [
     fields: [
       { key: "ctaTitle", label: "Sarlavha", type: "text" },
       { key: "ctaText", label: "Matn", type: "textarea" },
+      { key: "ctaImage", label: "Fon rasmi", type: "image", help: "Bo'sh bo'lsa — kechki uy vizualizatsiyasi" },
     ],
   },
 ];

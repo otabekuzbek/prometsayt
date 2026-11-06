@@ -1,6 +1,8 @@
 /* ===== Admin panel ===== */
 .adm { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; background: #eef0ee; color: var(--ink-body); font-size: 15px; }
 .adm h1, .adm h2 { font-family: var(--f-ui); letter-spacing: -0.01em; color: var(--ink); }
+.adm h3, .adm h4 { color: var(--ink); }
+.adm ::selection { background: var(--navy); color: #fff; }
 .adm-side { background: var(--night); color: #c8d3e3; padding: 22px 14px; display: flex; flex-direction: column; gap: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .adm-logo img { height: 34px; width: auto; margin-left: 8px; }
 .adm-side nav { display: grid; gap: 14px; }

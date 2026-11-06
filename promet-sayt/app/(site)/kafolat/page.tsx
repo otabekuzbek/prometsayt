@@ -29,7 +29,7 @@ export default async function Page() {
               ["Ochiq reestr", "Hujjat raqami bilan kafolatni saytda istalgan vaqt tekshirish mumkin."],
             ].map(([t, d]) => (
               <div key={t} className="value">
-                <span style={{ color: "var(--green-btn)" }}><Shield size={28} /></span>
+                <span style={{ color: "var(--leaf)" }}><Shield size={28} /></span>
                 <h3>{t}</h3>
                 <p className="muted">{d}</p>
               </div>

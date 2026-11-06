@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import type { RoofObject } from "@/lib/types";
 import { OBJECT_TYPES, placeName, videoEmbed } from "@/lib/utils";
-import RoofArt from "./RoofArt";
+import { RENDERS } from "@/lib/renders";
 import Reveal from "./Reveal";
 import { Close } from "./Icons";
 
@@ -16,9 +16,12 @@ function GalleryItem({ o, i, onOpen }: { o: RoofObject; i: number; onOpen: () =>
           {o.images[0] ? (
             <Image src={o.images[0]} alt="" fill sizes="(max-width: 960px) 100vw, 60vw" style={{ objectFit: "cover" }} />
           ) : (
-            <RoofArt variant={i} label={o.title} />
+            // Foto hali yuklanmagan — 3D vizualizatsiya (yorliq bilan, chalg'itmaslik uchun)
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={RENDERS.houses[i % RENDERS.houses.length]} alt="" loading="lazy" style={{ position: "absolute", inset: 0 }} />
           )}
         </div>
+        {!o.images[0] && <span className="g-badge">Foto tez orada · vizualizatsiya</span>}
         <span className="g-view" aria-hidden="true">{o.videoUrl ? "Video" : "Ko'rish"}</span>
       </Reveal>
       <div className="g-cap">
@@ -135,7 +138,8 @@ export function Lightbox({ obj, onClose }: { obj: RoofObject; onClose: () => voi
         {s.kind === "video" && <iframe src={s.src} title={obj.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />}
         {s.kind === "art" && (
           <div style={{ width: "min(900px,100%)", aspectRatio: "4/3", overflow: "hidden" }}>
-            <RoofArt label={obj.title} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={RENDERS.houses[0]} alt={`${obj.title} — vizualizatsiya`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
         )}
         {slides.length > 1 && (

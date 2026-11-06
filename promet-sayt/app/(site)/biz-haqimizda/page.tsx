@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { content } from "@/lib/data";
 import PageHero from "@/components/PageHero";
-import RoofArt from "@/components/RoofArt";
 import Media from "@/components/Media";
 import { Arrow } from "@/components/Icons";
+import Numbers from "@/components/home/Numbers";
 
 export const revalidate = 3600;
 export const metadata: Metadata = { title: "Biz haqimizda", description: "Promet Tom Markazi — 15 yillik tajribaga ega tom yopish korxonasi." };
@@ -13,7 +13,6 @@ export default async function Page() {
   const c = await content();
   const s = c.settings;
   const img = c.objects.find((o) => o.images[0])?.images[0];
-  const stats = c.home.stats.map((x) => ({ v: x.value, l: x.label }));
   return (
     <>
       <PageHero crumb={[{ label: "Biz haqimizda" }]} script="Promet jamoasi" title="Tomni yopamiz va unga javob beramiz" />
@@ -21,7 +20,7 @@ export default async function Page() {
         <div className="wrap about-grid">
           <div style={{ display: "grid", gap: 20 }}>
             <h2 className="h-lg">{s.yearsExperience} yildan beri tom yopamiz</h2>
-            <p style={{ fontSize: 18 }}>
+            <p style={{ fontSize: 18, color: "var(--tx)" }}>
               {s.companyName} — materialni yetkazib berishdan montajgacha hammasini o&apos;zi bajaradigan tom yopish korxonasi. Biz uchun tom
               uyning eng muhim qismi: u oilani yillar davomida himoya qilishi kerak.
             </p>
@@ -30,16 +29,12 @@ export default async function Page() {
             </p>
             <Link href="/obyektlar" className="btn btn-navy" style={{ width: "fit-content" }}>Obyektlarni ko&apos;rish <Arrow size={18} /></Link>
           </div>
-          <div className="gallery-main">{img ? <Media src={img} alt="Promet obyekti" /> : <RoofArt variant={0} />}</div>
+          <div className="gallery-main"><Media src={img} alt="Promet obyekti" variant={2} /></div>
         </div>
       </section>
-      <section className="section dark">
+      <section className="section-tight deep">
         <div className="wrap">
-          <div className="big-stats">
-            {stats.map((x) => (
-              <div key={x.l}><b>{x.v}</b>{x.l}</div>
-            ))}
-          </div>
+          <Numbers stats={c.home.stats} />
         </div>
       </section>
       <section className="section">

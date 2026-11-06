@@ -63,6 +63,14 @@ export default function Calculator({ pricing, colors: palette, withForm = true }
   const [angle, setAngle] = useState(28);
   const [overhang, setOverhang] = useState(0.6);
 
+  // Bosh sahifadagi konfiguratordan kelgan rang: /kalkulyator?rang=%2345494E
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("rang");
+    const hit = q && COLORS.find((c) => c.hex.toLowerCase() === q.toLowerCase());
+    if (hit) setColor(hit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const go = (n: number) => {
     setStep(n);
     setVisited((v) => Math.max(v, n));
@@ -111,7 +119,7 @@ export default function Calculator({ pricing, colors: palette, withForm = true }
   return (
     <div className="calc">
       <div className="calc-stage">
-        <RoofScene color={color.hex} shape={shape} material={material} label={`${shapeLabel}, ${matLabel}, rang ${color.name}. 3D ko'rinish.`} />
+        <RoofScene color={color.hex} shape={shape} material={material} time="golden" view="orbit" label={`${shapeLabel}, ${matLabel}, rang ${color.name}. 3D ko'rinish.`} />
         <div className="calc-total" aria-live="polite">
           <div className="print-only">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -156,7 +164,7 @@ export default function Calculator({ pricing, colors: palette, withForm = true }
               <button type="button" aria-pressed={material === "profnastil"} onClick={() => setMaterial("profnastil")}>Profnastil</button>
             </div>
             <div style={{ display: "grid", gap: 12 }}>
-              <span className="note">Rang: <b style={{ color: "var(--ink)" }}>{color.name}{color.ral ? `, RAL ${color.ral}` : ""}</b></span>
+              <span className="note">Rang: <b style={{ color: "var(--tx)" }}>{color.name}{color.ral ? `, RAL ${color.ral}` : ""}</b></span>
               <div className="swatches" style={{ justifyContent: "flex-start" }} role="group" aria-label="Tom rangi">
                 {COLORS.map((c) => (
                   <button key={c.hex + c.name} type="button" className="swatch-btn" style={{ background: c.hex }} aria-pressed={c.hex === color.hex && c.name === color.name} aria-label={`${c.name}${c.ral ? `, RAL ${c.ral}` : ""}`} onClick={() => setColor(c)} />
@@ -198,8 +206,8 @@ export default function Calculator({ pricing, colors: palette, withForm = true }
             </table>
             <button type="button" className="btn btn-ghost btn-sm no-print" onClick={() => window.print()} style={{ justifySelf: "start" }}>Smetani PDF qilib saqlash</button>
             {withForm && (
-              <div id="calc-lead" style={{ display: "grid", gap: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }} className="no-print">
-                <b style={{ fontFamily: "var(--f-serif)", fontSize: 30, color: "var(--ink)", fontWeight: 500, lineHeight: 1.1 }}>Aniq smetani oling</b>
+              <div id="calc-lead" style={{ display: "grid", gap: 14, paddingTop: 12, borderTop: "1px solid var(--hair)" }} className="no-print">
+                <b style={{ fontFamily: "var(--f-serif)", fontSize: 30, color: "var(--tx)", fontWeight: 500, lineHeight: 1.1 }}>Aniq smetani oling</b>
                 <p className="note">Hisobingiz murojaatga avtomatik qo&apos;shiladi — qayta tushuntirish shart emas.</p>
                 <LeadForm source="kalkulyator" calc={summary} compact submitLabel="Aniq smetani olish" />
               </div>

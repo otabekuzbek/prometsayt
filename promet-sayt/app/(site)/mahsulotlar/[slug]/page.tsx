@@ -60,7 +60,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
                 <tr><td>Kafolat</td><td>{p.warrantyYears} yil</td></tr>
                 {p.specs.map((sp) => {
                   const [k, ...v] = sp.split(":");
-                  return v.length ? <tr key={sp}><td>{k}</td><td>{v.join(":").trim()}</td></tr> : <tr key={sp}><td colSpan={2} style={{ color: "var(--ink)", fontWeight: 700 }}>{sp}</td></tr>;
+                  return v.length ? <tr key={sp}><td>{k}</td><td>{v.join(":").trim()}</td></tr> : <tr key={sp}><td colSpan={2} style={{ color: "var(--tx)", fontWeight: 700 }}>{sp}</td></tr>;
                 })}
               </tbody>
             </table>

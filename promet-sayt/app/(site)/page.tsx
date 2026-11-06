@@ -2,6 +2,9 @@ import Link from "next/link";
 import { content } from "@/lib/data";
 import { formatDate, telHref, videoEmbed } from "@/lib/utils";
 import Hero from "@/components/home/Hero";
+import Offer from "@/components/home/Offer";
+import BeforeAfter from "@/components/home/BeforeAfter";
+import { RENDERS } from "@/lib/renders";
 import MaterialPicker from "@/components/home/MaterialPicker";
 import Process from "@/components/home/Process";
 import ObjectsGallery from "@/components/ObjectsGallery";
@@ -10,7 +13,9 @@ import WarrantyCheck from "@/components/WarrantyCheck";
 import LeadForm from "@/components/LeadForm";
 import Reveal from "@/components/Reveal";
 import Media from "@/components/Media";
-import { Arrow } from "@/components/Icons";
+import { Alert, Arrow, Check, Doc, Layers, Shield, Users } from "@/components/Icons";
+
+const WHY_ICONS = [Doc, Users, Layers, Shield];
 
 export const revalidate = 3600;
 
@@ -28,11 +33,13 @@ export default async function Home() {
 
   return (
     <>
-      <Hero home={h} />
+      <Hero home={h} phone={s.phone} tel={telHref(s.phone)} />
+
+      {h.showOffer && h.offerTitle && <Offer title={h.offerTitle} text={h.offerText} deadline={h.offerDeadline} />}
 
       {/* Kompaniya haqida */}
       {(h.introTitle || h.introText) && (
-        <section className="section">
+        <section className="section glow">
           <div className="wrap intro">
             <Reveal kind="up"><h2>{h.introTitle}</h2></Reveal>
             <Reveal kind="up" className="intro-side" delay={120}>
@@ -43,9 +50,37 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Oldin / keyin */}
+      {h.showPain && (
+        <section className="section deep">
+          <div className="wrap pain">
+            <div className="pain-copy">
+              <Reveal kind="up"><h2 className="h-lg">{h.painTitle}</h2></Reveal>
+              {h.painText && <p className="lead">{h.painText}</p>}
+              {h.painItems.length > 0 && (
+                <ul className="pain-list">
+                  {h.painItems.map((it) => (
+                    <li key={it.title}>
+                      <Alert size={20} />
+                      <h3>{it.title}</h3>
+                      <p>{it.text}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link href="/aloqa#forma" className="btn btn-green" style={{ width: "fit-content" }}>Tomimni tekshirtirish <Arrow size={18} /></Link>
+            </div>
+            <div>
+              <BeforeAfter before={h.beforeImage || RENDERS.before} after={h.afterImage || RENDERS.after} />
+              {!(h.beforeImage && h.afterImage) && <p className="viz-note">Vizualizatsiya. Chiziqni suring — eski shifer va yangi metallocherepitsa farqi.</p>}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Obyektlar */}
       {h.showObjects && c.objects.length > 0 && (
-        <section className="section porcelain">
+        <section className="section">
           <div className="wrap">
             <div className="sec-head">
               <div>
@@ -64,7 +99,7 @@ export default async function Home() {
 
       {/* Materiallar */}
       {h.showMaterials && c.products.length > 0 && (
-        <section className="section">
+        <section className="section deep glow">
           <div className="wrap">
             <div className="sec-head">
               <div>
@@ -76,7 +111,33 @@ export default async function Home() {
                 <Link href="/mahsulotlar" className="link-arrow">Katalog <Arrow size={18} /></Link>
               </div>
             </div>
-            <MaterialPicker products={c.products} />
+            <MaterialPicker products={c.products} colors={h.roofColors} />
+          </div>
+        </section>
+      )}
+
+      {/* Nega biz */}
+      {h.showWhy && h.whyItems.length > 0 && (
+        <section className="section">
+          <div className="wrap">
+            <div className="sec-head">
+              <div>
+                <span className="eyebrow">Ishonch</span>
+                <h2 className="h-lg">{h.whyTitle}</h2>
+              </div>
+            </div>
+            <div className="why">
+              {h.whyItems.map((it, i) => {
+                const Ic = WHY_ICONS[i % WHY_ICONS.length];
+                return (
+                  <div key={it.title} className="why-item">
+                    <span className="ic"><Ic size={24} /></span>
+                    <h3>{it.title}</h3>
+                    <p>{it.text}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
       )}
@@ -85,7 +146,7 @@ export default async function Home() {
 
       {/* Kalkulyator */}
       {h.showCalculator && (
-        <section className="section" id="kalkulyator">
+        <section className="section glow" id="kalkulyator">
           <div className="wrap">
             <div className="sec-head">
               <div>
@@ -101,7 +162,7 @@ export default async function Home() {
 
       {/* Kafolat */}
       {h.showWarranty && (
-        <section className="section porcelain">
+        <section className="section deep">
           <div className="wrap">
             <WarrantyCheck years={s.warrantyYears} title={h.warrantyTitle} text={h.warrantyText} />
             {c.certificates.length > 0 && (
@@ -159,7 +220,7 @@ export default async function Home() {
 
       {/* Savollar va forma */}
       {h.showFaq && (
-        <section className={`section${h.showReviews && c.reviews.length ? " porcelain" : ""}`} id="savollar">
+        <section className="section glow" id="savollar">
           <div className="wrap faq-layout">
             <div>
               <h2 className="h-lg" style={{ marginBottom: "clamp(32px, 4vw, 56px)" }}>{h.faqTitle}</h2>
@@ -178,6 +239,10 @@ export default async function Home() {
                 <h2 className="h-md">Usta qachon kelsin?</h2>
                 <p className="muted">Raqamingizni qoldiring — ish vaqtida qo&apos;ng&apos;iroq qilib, o&apos;lchov vaqtini kelishamiz.</p>
                 <LeadForm source="bosh-sahifa" compact />
+                <div style={{ display: "grid", gap: 8 }}>
+                  <span className="promise"><Check size={16} /> O&apos;lchov va smeta bepul, majburiyatsiz</span>
+                  <span className="promise"><Check size={16} /> Raqamingiz faqat qo&apos;ng&apos;iroq uchun ishlatiladi</span>
+                </div>
               </div>
             </div>
           </div>
@@ -186,7 +251,7 @@ export default async function Home() {
 
       {/* Maqolalar */}
       {h.showArticles && articles.length > 0 && (
-        <section className="section porcelain">
+        <section className="section deep">
           <div className="wrap">
             <div className="sec-head">
               <div>
@@ -212,12 +277,16 @@ export default async function Home() {
 
       {/* Yakuniy chaqiriq */}
       <section className="cta-final">
+        <div className="bg" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={h.ctaImage || RENDERS.cta} alt="" loading="lazy" />
+        </div>
         <div className="wrap">
           <h2>{h.ctaTitle}</h2>
           <div className="side">
             {h.ctaText && <p>{h.ctaText}</p>}
             <a className="phone" href={telHref(s.phone)}>{s.phone}</a>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }} className="on-dark">
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <Link href="/aloqa#forma" className="btn btn-green">Murojaat qoldirish <Arrow size={18} /></Link>
               <Link href="/kalkulyator" className="btn btn-ghost">Narxni hisoblash</Link>
             </div>

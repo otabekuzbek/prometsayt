@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import RoofArt from "./RoofArt";
+import { RENDERS } from "@/lib/renders";
 
 export default function ProductGallery({ images, name, ribs }: { images: string[]; name: string; ribs?: boolean }) {
   const [i, setI] = useState(0);
@@ -11,7 +11,8 @@ export default function ProductGallery({ images, name, ribs }: { images: string[
         {images[i] ? (
           <Image src={images[i]} alt={name} fill priority sizes="(max-width: 860px) 100vw, 55vw" style={{ objectFit: "cover" }} />
         ) : (
-          <RoofArt label={name} ribs={ribs} />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={ribs ? RENDERS.profnastil : "/renders/close-45494e.webp"} alt={`${name} — vizualizatsiya`} />
         )}
       </div>
       {images.length > 1 && (

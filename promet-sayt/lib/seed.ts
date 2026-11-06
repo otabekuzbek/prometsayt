@@ -37,6 +37,8 @@ export const seedContent: Content = {
     heroText:
       "Metallocherepitsa, profnastil va tunkafon. O'lchovdan montajgacha o'z jamoamiz bajaradi va har bir tomga 15 yillik yozma kafolat beradi.",
     heroCta: "Bepul o'lchovga yozilish",
+    heroTime: "dusk",
+    heroTrust: ["O'lchov va smeta — bepul", "Narx yozma, keyin o'zgarmaydi", "15 yil yozma kafolat"],
     stats: [
       { value: "15 yil", label: "tom yopish tajribasi" },
       { value: "15 yil", label: "yozma kafolat" },
@@ -50,6 +52,29 @@ export const seedContent: Content = {
       { name: "Ko'k", ral: "5005", hex: "#1E4B8A" },
       { name: "Kumush", ral: "9006", hex: "#A1A1A0" },
     ],
+    showPain: true,
+    painTitle: "Eski tom har yomg'irda xavotir beradi",
+    painText:
+      "Yoriq shifer, zanglagan list, shiftdagi dog'lar — bular bir kunda paydo bo'lmaydi va o'z-o'zidan yo'qolmaydi. Yangi tom bu xavotirni bir marta va uzoq yillarga yopadi.",
+    painItems: [
+      { title: "Oqish va namlik", text: "Suv shiftga, devorga va yog'och karkasga o'tadi. Ta'mir narxi tomnikidan qimmatga tushadi." },
+      { title: "Issiq va sovuq", text: "Yomon yopilgan tomdan yozda issiq kiradi, qishda issiqlik chiqib ketadi." },
+      { title: "Uyning ko'rinishi", text: "Tom — uyning eng ko'zga tashlanadigan qismi. Eski tom butun uyni eski ko'rsatadi." },
+    ],
+    beforeImage: "",
+    afterImage: "",
+    showWhy: true,
+    whyTitle: "Nega Promet'ni tanlashadi",
+    whyItems: [
+      { title: "Narx yozma va o'zgarmaydi", text: "Smetadagi summa shartnomaga kiradi. Ish jarayonida \"yana kerak bo'lib qoldi\" degan qo'shimcha to'lov bo'lmaydi." },
+      { title: "O'z montaj jamoamiz", text: "Tomni tasodifiy ustalar emas, Promet brigadasi yopadi. Ish sifatiga kompaniya javob beradi." },
+      { title: "To'liq komplekt bir rangda", text: "List, planka, vodostok va vintlar bir vaqtda, bir rangda keladi. Ish to'xtab qolmaydi." },
+      { title: "Kafolat reestrda", text: "Har bir tomga raqamli kafolat hujjati beriladi va uni saytda istalgan vaqt tekshirish mumkin." },
+    ],
+    showOffer: true,
+    offerTitle: "Narxni bilish sizni hech narsaga majburlamaydi",
+    offerText: "Usta keladi, o'lchaydi, material namunalarini ko'rsatadi va yozma smeta beradi. Hammasi bepul.",
+    offerDeadline: "",
     introTitle: "Tom — uyning toji. Uni bir marta, puxta yopish kerak.",
     introText:
       "Biz materialni tanlashdan montajgacha hammasini o'zimiz bajaramiz. Smeta yozma beriladi va o'zgarmaydi, ish tugagach esa har bir tom raqamli kafolat hujjati bilan topshiriladi.",
@@ -82,6 +107,7 @@ export const seedContent: Content = {
     articlesTitle: "Foydali maqolalar",
     ctaTitle: "O'lchov bepul. Bugun qo'ng'iroq qiling.",
     ctaText: "Usta joyga kelib o'lchaydi va yozma smeta tayyorlaydi. Hech qanday majburiyat yo'q.",
+    ctaImage: "",
   },
   pricing: {
     profnastilMin: 85000,

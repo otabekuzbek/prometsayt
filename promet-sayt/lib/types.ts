@@ -40,8 +40,31 @@ export interface Home {
   heroTitle: string;
   heroText: string;
   heroCta: string;
+  /** 3D sahna vaqti: kunduz, oltin soat, shom */
+  heroTime: "day" | "golden" | "dusk";
+  /** Birinchi ekrandagi ishonch belgilari (har qatorda bittadan) */
+  heroTrust: string[];
   stats: Stat[];
   roofColors: RoofColor[];
+
+  /** Muammo → yechim: "oldin / keyin" */
+  showPain: boolean;
+  painTitle: string;
+  painText: string;
+  painItems: Step[];
+  beforeImage: string;
+  afterImage: string;
+
+  /** Nega aynan biz */
+  showWhy: boolean;
+  whyTitle: string;
+  whyItems: Step[];
+
+  /** Taklif lentasi */
+  showOffer: boolean;
+  offerTitle: string;
+  offerText: string;
+  offerDeadline: string;
 
   introTitle: string;
   introText: string;
@@ -77,6 +100,7 @@ export interface Home {
 
   ctaTitle: string;
   ctaText: string;
+  ctaImage: string;
 }
 
 export interface Pricing {

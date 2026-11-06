@@ -47,7 +47,7 @@ export default function WarrantyCheck({ years = 15, showDoc = true, title, text 
   const form = (
     <form className="check-box" onSubmit={check} id="tekshirish">
       <label htmlFor="w-num" className="field" style={{ gap: 4 }}>
-        <span style={{ fontWeight: 600, fontSize: 17, color: "var(--ink)" }}>Kafolat raqamini tekshiring</span>
+        <span style={{ fontWeight: 600, fontSize: 17, color: "var(--tx)" }}>Kafolat raqamini tekshiring</span>
         <span className="muted" style={{ fontSize: 15 }}>Raqam kafolat hujjatining yuqori qismida yozilgan.</span>
       </label>
       <div className="check-row">
